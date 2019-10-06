@@ -9,5 +9,19 @@ str(h1b)
 #h1b$State
 ```
 
-1. Does year affect 
+1. How have U.S. H1b visa acceptances and denials changed over the course of 2015 and 2016?
+  1a) What industries accept the most H1b visas from the time spanning 2016-2016?
+  1b) Which US locations accept or deny the most H1b visas from 2015-2016?
+  1c) How does year affect H1b visa acceptance from 2015-2016?
+  1d) How has the change in presidency from 2015-2016 affected H1b visa acceptances and denials?
+  
+IV: H1b initial approvals
+    H1b iniitial denials
+    H1b continuing approvals
+    H1b continuing denials
 
+DV: type of industry
+    U.S. location
+    year/time
+    U.S. presidency
+    
