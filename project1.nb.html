@@ -1751,22 +1751,37 @@ summary {
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaDFiIDwtIHJlYWQuY3N2KCdIMUJfMjAwOS0yMDE5LmNzdicpXG5gYGAifQ== -->
-<pre class="r"><code>h1b &lt;- read.csv('H1B_2009-2019.csv')</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaDFiIDwtIHJlYWQuY3N2KCdIMUJfMjAwOS0yMDE5LmNzdicpXG5zdHIoaDFiKVxuYGBgIn0= -->
+<pre class="r"><code>h1b &lt;- read.csv('H1B_2009-2019.csv')
+str(h1b)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiY2Fubm90IG9wZW4gZmlsZSAnSDFCXzIwMDktMjAxOS5jc3YnOiBObyBzdWNoIGZpbGUgb3IgZGlyZWN0b3J5RXJyb3IgaW4gZmlsZShmaWxlLCBcInJ0XCIpIDogY2Fubm90IG9wZW4gdGhlIGNvbm5lY3Rpb25cbiJ9 -->
-<pre><code>cannot open file 'H1B_2009-2019.csv': No such file or directoryError in file(file, &quot;rt&quot;) : cannot open the connection</code></pre>
+<!-- rnb-output-begin eyJkYXRhIjoiJ2RhdGEuZnJhbWUnOlx0NTk3MDg5IG9icy4gb2YgIDExIHZhcmlhYmxlczpcbiAkIEZpc2NhbC5ZZWFyICAgICAgICAgOiBpbnQgIDIwMDkgMjAwOSAyMDA5IDIwMDkgMjAwOSAyMDA5IDIwMDkgMjAwOSAyMDA5IDIwMDkgLi4uXG4gJCBFbXBsb3llciAgICAgICAgICAgIDogRmFjdG9yIHcvIDI3NTI1MCBsZXZlbHMgXCJcIixcIiBVTklWIE9GIE1BU1NBQ0hVU0VUVFMgREFSVE1PVVRIXCIsLi46IDIwODkzNSAyMDEyNzQgMzE2MDUgNzg2ODYgMjQzNDExIDg5NDMwIDE2NzAyNSAyMjk1MSAxMDk1MjcgMjA1NzY1IC4uLlxuICQgSW5pdGlhbC5BcHByb3ZhbHMgICA6IEZhY3RvciB3LyA0NzMgbGV2ZWxzIFwiMFwiLFwiMVwiLFwiMSwwMjhcIiwuLjogMiAxIDIgMSAxIDEgMSAxIDEgMSAuLi5cbiAkIEluaXRpYWwuRGVuaWFscyAgICAgOiBGYWN0b3Igdy8gMTUwIGxldmVscyBcIjBcIixcIjFcIixcIjEsMDYxXCIsLi46IDEgMSAxIDEgMiAxIDIgMiAxIDEgLi4uXG4gJCBDb250aW51aW5nLkFwcHJvdmFsczogRmFjdG9yIHcvIDY0NSBsZXZlbHMgXCIwXCIsXCIxXCIsXCIxLDAxMVwiLC4uOiAxIDIgMSAyIDEgMiAxIDIgMiAyIC4uLlxuICQgQ29udGludWluZy5EZW5pYWxzICA6IEZhY3RvciB3LyAxNDMgbGV2ZWxzIFwiMFwiLFwiMVwiLFwiMSwwMThcIiwuLjogMSAxIDEgMSAxIDEgMSAxIDEgMSAuLi5cbiAkIE5BSUNTICAgICAgICAgICAgICAgOiBpbnQgIDYxIDYyIDYyIDYyIDYxIDMzIDcyIDYyIDYxIDUzIC4uLlxuICQgVGF4LklEICAgICAgICAgICAgICA6IGludCAgTkEgTkEgTkEgTkEgTkEgTkEgTkEgTkEgTkEgTkEgLi4uXG4gJCBTdGF0ZSAgICAgICAgICAgICAgIDogRmFjdG9yIHcvIDYwIGxldmVscyBcIlwiLFwiXFwwMDRcIixcIkFFXCIsLi46IDEgNSA1IDcgOCA4IDkgOSA5IDkgLi4uXG4gJCBDaXR5ICAgICAgICAgICAgICAgIDogRmFjdG9yIHcvIDg3MzQgbGV2ZWxzIFwiXCIsXCIuRFVSSEFNXCIsXCJBQUJCT1RUIFBBUktcIiwuLjogNzkyMiAxOTIgMTE4OCAyNTgzIDY5NTggNzY4MCAxNjUgMjg0IDQ3NSA4MDEgLi4uXG4gJCBaSVAgICAgICAgICAgICAgICAgIDogaW50ICBOQSAzNjIwMiAzNTA0MiA3MjkxNyA4NTI3MSA4NTI4NCA5MjgwNSA5MzQyMyA5MjIyMyA5MjgyMSAuLi5cbiJ9 -->
+<pre><code>'data.frame':   597089 obs. of  11 variables:
+ $ Fiscal.Year         : int  2009 2009 2009 2009 2009 2009 2009 2009 2009 2009 ...
+ $ Employer            : Factor w/ 275250 levels &quot;&quot;,&quot; UNIV OF MASSACHUSETTS DARTMOUTH&quot;,..: 208935 201274 31605 78686 243411 89430 167025 22951 109527 205765 ...
+ $ Initial.Approvals   : Factor w/ 473 levels &quot;0&quot;,&quot;1&quot;,&quot;1,028&quot;,..: 2 1 2 1 1 1 1 1 1 1 ...
+ $ Initial.Denials     : Factor w/ 150 levels &quot;0&quot;,&quot;1&quot;,&quot;1,061&quot;,..: 1 1 1 1 2 1 2 2 1 1 ...
+ $ Continuing.Approvals: Factor w/ 645 levels &quot;0&quot;,&quot;1&quot;,&quot;1,011&quot;,..: 1 2 1 2 1 2 1 2 2 2 ...
+ $ Continuing.Denials  : Factor w/ 143 levels &quot;0&quot;,&quot;1&quot;,&quot;1,018&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...
+ $ NAICS               : int  61 62 62 62 61 33 72 62 61 53 ...
+ $ Tax.ID              : int  NA NA NA NA NA NA NA NA NA NA ...
+ $ State               : Factor w/ 60 levels &quot;&quot;,&quot;\004&quot;,&quot;AE&quot;,..: 1 5 5 7 8 8 9 9 9 9 ...
+ $ City                : Factor w/ 8734 levels &quot;&quot;,&quot;.DURHAM&quot;,&quot;AABBOTT PARK&quot;,..: 7922 192 1188 2583 6958 7680 165 284 475 801 ...
+ $ ZIP                 : int  NA 36202 35042 72917 85271 85284 92805 93423 92223 92821 ...</code></pre>
 <!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI2gxYiRTdGF0ZVxuYGBgIn0= -->
+<pre class="r"><code>#h1b$State</code></pre>
+<!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <ol style="list-style-type: decimal">
-<li>How have U.S. H1b visa acceptances and denials changed over the course of 2015 and 2016? 1a) What industries accept the most H1b visas from the time spanning 2016-2016? 1b) Which US locations accept or deny the most H1b visas from 2015-2016? 1c) How does year affect H1b visa acceptance from 2015-2016? 1d) How has the change in presidency from 2015-2016 affected H1b visa acceptances and denials?</li>
+<li>How have U.S. H1b visa acceptances and denials changed over the course of 2015-2019? 1a) How does industry effect H1b visas from the time spanning 2015-2019? 1b) How does US location effect H1b visas from 2015-2019? 1c) How does year affect H1b visa acceptance from 2015-2019? 1d) How has the change in presidency from 2015-2019 affected H1b visa acceptances and denials?</li>
 </ol>
 <p>IV: H1b initial approvals H1b iniitial denials H1b continuing approvals H1b continuing denials</p>
-<p>DV: type of industry U.S. location year/time U.S. presidency</p>
+<p>DV: type of industry U.S. location year/time (total 10 yrs and 2015-2019) U.S. presidency</p>
 <!-- rnb-text-end -->
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiUHJvamVjdDEiCm91dHB1dDogaHRtbF9ub3RlYm9vawotLS0KCmBgYHtyfQpoMWIgPC0gcmVhZC5jc3YoJ0gxQl8yMDA5LTIwMTkuY3N2JykKc3RyKGgxYikKI2gxYiRTdGF0ZQpgYGAKCjEuIEhvdyBoYXZlIFUuUy4gSDFiIHZpc2EgYWNjZXB0YW5jZXMgYW5kIGRlbmlhbHMgY2hhbmdlZCBvdmVyIHRoZSBjb3Vyc2Ugb2YgMjAxNSBhbmQgMjAxNj8KICAxYSkgV2hhdCBpbmR1c3RyaWVzIGFjY2VwdCB0aGUgbW9zdCBIMWIgdmlzYXMgZnJvbSB0aGUgdGltZSBzcGFubmluZyAyMDE2LTIwMTY/CiAgMWIpIFdoaWNoIFVTIGxvY2F0aW9ucyBhY2NlcHQgb3IgZGVueSB0aGUgbW9zdCBIMWIgdmlzYXMgZnJvbSAyMDE1LTIwMTY/CiAgMWMpIEhvdyBkb2VzIHllYXIgYWZmZWN0IEgxYiB2aXNhIGFjY2VwdGFuY2UgZnJvbSAyMDE1LTIwMTY/CiAgMWQpIEhvdyBoYXMgdGhlIGNoYW5nZSBpbiBwcmVzaWRlbmN5IGZyb20gMjAxNS0yMDE2IGFmZmVjdGVkIEgxYiB2aXNhIGFjY2VwdGFuY2VzIGFuZCBkZW5pYWxzPwogIApJVjogSDFiIGluaXRpYWwgYXBwcm92YWxzCiAgICBIMWIgaW5paXRpYWwgZGVuaWFscwogICAgSDFiIGNvbnRpbnVpbmcgYXBwcm92YWxzCiAgICBIMWIgY29udGludWluZyBkZW5pYWxzCgpEVjogdHlwZSBvZiBpbmR1c3RyeQogICAgVS5TLiBsb2NhdGlvbgogICAgeWVhci90aW1lCiAgICBVLlMuIHByZXNpZGVuY3kKICAgIAo=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiUHJvamVjdDEiCm91dHB1dDogaHRtbF9ub3RlYm9vawotLS0KCmBgYHtyfQpoMWIgPC0gcmVhZC5jc3YoJ0gxQl8yMDA5LTIwMTkuY3N2JykKc3RyKGgxYikKI2gxYiRTdGF0ZQpgYGAKCjEuIEhvdyBoYXZlIFUuUy4gSDFiIHZpc2EgYWNjZXB0YW5jZXMgYW5kIGRlbmlhbHMgY2hhbmdlZCBvdmVyIHRoZSBjb3Vyc2Ugb2YgMjAxNS0yMDE5PwogIDFhKSBIb3cgZG9lcyBpbmR1c3RyeSBlZmZlY3QgSDFiIHZpc2FzIGZyb20gdGhlIHRpbWUgc3Bhbm5pbmcgMjAxNS0yMDE5PwogIDFiKSBIb3cgZG9lcyBVUyBsb2NhdGlvbiBlZmZlY3QgSDFiIHZpc2FzIGZyb20gMjAxNS0yMDE5PwogIDFjKSBIb3cgZG9lcyB5ZWFyIGFmZmVjdCBIMWIgdmlzYSBhY2NlcHRhbmNlIGZyb20gMjAxNS0yMDE5PwogIDFkKSBIb3cgaGFzIHRoZSBjaGFuZ2UgaW4gcHJlc2lkZW5jeSBmcm9tIDIwMTUtMjAxOSBhZmZlY3RlZCBIMWIgdmlzYSBhY2NlcHRhbmNlcyBhbmQgZGVuaWFscz8KICAKSVY6IEgxYiBpbml0aWFsIGFwcHJvdmFscwogICAgSDFiIGluaWl0aWFsIGRlbmlhbHMKICAgIEgxYiBjb250aW51aW5nIGFwcHJvdmFscwogICAgSDFiIGNvbnRpbnVpbmcgZGVuaWFscwoKRFY6IHR5cGUgb2YgaW5kdXN0cnkKICAgIFUuUy4gbG9jYXRpb24KICAgIHllYXIvdGltZSAodG90YWwgMTAgeXJzIGFuZCAyMDE1LTIwMTkpCiAgICBVLlMuIHByZXNpZGVuY3kKICAgIAo=</div>
 
 
 
