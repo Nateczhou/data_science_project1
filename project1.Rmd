@@ -107,6 +107,7 @@ elbow_rooml <- us_base + geom_polygon(data = state_approval, aes(fill = totalini
 ```
 
 ```{r}
+<<<<<<< Updated upstream
 elbow_rooml 
 
 #p <- ggplot(data = usstate) +
@@ -115,5 +116,12 @@ elbow_rooml
 #  guides(fill=FALSE) 
 
 #p + geom_polygon(aes(x = long, y = lat, fill = totalinitialapp, group = group))
+=======
+eb1 <- elbow_rooml + scale_fill_gradient(trans = "log10")
+eb1
+
+eb2 <- elbow_rooml + scale_fill_gradientn(colours = rev(rainbow(7)), breaks = c(1000, 10000, 100000), trans = "log10")
+eb2
+>>>>>>> Stashed changes
 ```
 
