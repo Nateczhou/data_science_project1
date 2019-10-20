@@ -1,13 +1,192 @@
 ---
-title: "Project1"
-output: html_notebook
+title: "H-1B Visa"
+author: "Cheng Zeng, Wenyu Zeng, Chao Zhou, Spencer Stucky"
+date: "10/14/2019"
+output:
+  html_document:
+    toc: yes
+    toc_depth: 4
+    fig.align: "center"
+    toc_float: yes
+    theme: readable
+  pdf_document:
+    toc: yes
+    toc_depth: '4'
 ---
 
-```{r}
-h1b <- read.csv('H1B_2009-2019.csv')
+```{r, include = F}
+library(dplyr)
+h1b <- read.csv('h1b_datahubexport_2009-2019.csv')
+```
+How have U.S. H1b visa acceptances and denials changed over the course of 2015-2019?1a) How does industry effect H1b visas from the time spanning 2015-2019?
+
+# Chapter 1: Introduction
+
+H-1B visa is a type of non-immigrate visa of United States that under the Immigration and Nationality Act since 1952. This visa allows foreign workers (individual) to enter United Stated to temporarily be employed by U.S. employers in specialty occupations. (Path2usa) With the development of the world, more and more people are looking for opportunities in U.S. Therefore, the number of applications for H-1B are rising every year. Each year, the total number of H-1B petitions that U.S. congress allowed to approve for a fiscal year is 65,000 for regular cap and 20,000 master’s exemption. (USCIS) According to the summary of USCIS H-1B 2019, there are more than 190,000 applications were submitted and 94,213 for regular quota and 95,885 for master quota. (USCIS) However, after Donald Trump become president, he signed the "Buy American, Hire American" executive order in April 2017. (USCIS) Though, this order helps U.S. employers hire most-skills foreign employees, the approval of this visa became harder and harder.
+
+Nonetheless, politics is not the only factor that affects H-1B’s approval rate, but industries and location are also impact it. In this report, we will focus on the relationship in ______________________________________________.
+
+# Chapter 2: Description of Data
+xxxxxxx
+```{r, echo=FALSE}
 str(h1b)
-#h1b$State
+```
+xxxxxxx
+
+# Chapter 3: Industries Factor
+
+## 3.1: Industries vs NAICS 
+### 3.1.1: Initial Application
+
+```{r initial, echo=FALSE} 
+library(ggplot2)
+h1b$naics = as.factor(h1b$NAICS)
+# use group by to combine same industry together to calculate the total initial application amount.
+initial <- h1b %>% group_by(naics) %>% summarize( totaliniaccpt = sum(Initial.Approvals, na.rm = T), #shows total number of initail approvals
+                                                  totaliniden = sum(Initial.Denials, na.rm = T), # shows total number of initial denials
+                                                  totalinitial = sum(Initial.Approvals,na.rm = T)+sum(Initial.Denials,na.rm = T), # shows total number of initial application
+                                                  iaccptperc = (totaliniaccpt/totalinitial)*100, round(iaccptperc, digits = 2), # percentage of initial approval rate
+                                                  idenperc = (totaliniden/totalinitial)*100, round(idenperc, digits = 2)) #percentage of initial denial rate
+
+ggplot(initial, aes(x = naics, y = iaccptperc, color = naics, fill = naics)) + # percentage of initial approvals rate and color by industry code
+  geom_bar(stat ="identity") + 
+  xlab("NAICS CODE") + 
+  ylab("Total Initial Approvals Percentage")
+ggplot(initial, aes(x = naics, y = idenperc, color = naics, , fill = naics)) + # percentage of initial denials rate and color by industry code
+  geom_bar(stat ="identity") + 
+  xlab("NAICS CODE") + 
+  ylab("Total Initial Denials Percentage")
+
+```
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXX
+XXXXXXXXXX
+XXXXXXXXX
+XXXX
+XXX
+X
+X
+### 3.1.2: Continuing Application
+```{r continuing, echo=FALSE}
+# use group by to combine same industry together to calculate the total continuing application amount.
+continuing <- h1b %>% group_by(naics) %>% summarize( totalconaccpt = sum(Continuing.Approvals, na.rm = T),
+                                                  totalconden = sum(Continuing.Denials, na.rm = T),
+                                                  totalcontinue = sum(Continuing.Approvals,na.rm = T)+sum(Continuing.Denials,na.rm = T),
+                                                  caccptperc = (totalconaccpt/totalcontinue) * 100,
+                                                  cdenperc = ( totalconden /totalcontinue) * 100 )
+ggplot(continuing, aes(x = naics, y = caccptperc, color = naics, fill = naics)) + geom_bar(stat ="identity") + xlab("NAICS CODE") + ylab("Total Continuing Approvals Percentage")
+ggplot(continuing, aes(x = naics, y = cdenperc, color = naics, fill = naics)) + geom_bar(stat ="identity") + xlab("NAICS CODE") + ylab("Total Continuing Denials Percentage")
 ```
 
-1. Does year affect 
+
+## 3.2: Industries vs NAICS by Year
+
+### 3.2.1: Initial Application
+
+```{r fig.width=12, fig.height=9,initialwithyear, echo=F}
+#install.packages("directlabels")
+library(directlabels)
+
+initialbyyear <- h1b %>% group_by(Fiscal.Year, naics) %>% summarize( totaliniaccpt = sum(Initial.Approvals, na.rm = T),
+                                                  totaliniden = sum(Initial.Denials, na.rm = T),
+                                                  totalinitial = sum(Initial.Approvals,na.rm = T)+sum(Initial.Denials,na.rm = T),
+                                                  iaccptperc = (totaliniaccpt/totalinitial)*100, 
+                                                  idenperc = (totaliniden/totalinitial)*100)
+
+ggplot(initialbyyear, aes(x=Fiscal.Year, y=iaccptperc)) + 
+    geom_line(aes(color=naics, group=naics), size = 1) +   # create the line by nacis code
+    ggtitle("Line Plot of Industry and  Initial Approvals Percentage by Year")+
+    geom_point(aes(color=naics), size=3) +  # for visualization purpose, we set up the point for each year so people can directly see the rate change of industry by year 
+    theme(plot.title = element_text(hjust = 0.5)) +  # since we change the size of the figer, we need to relocate the fig name to center
+    xlab("Year")+ ylab("Percentage(%)")+  # rename x and y axis names
+    geom_dl(aes(label = naics, color = naics), method = list(dl.combine("first.polygons", "last.polygons"), cex = 1))+  #set up label for each line
+    scale_x_continuous(breaks=seq(2009, 2019, 1))+   # changing the scale for both x and y axis
+    scale_y_continuous(breaks=seq(50, 100, 5)) 
+
+ggsave("iaccptperc.png", width=12, height=9)
+
+ggplot(initialbyyear, aes(x=Fiscal.Year, y=idenperc)) + 
+    geom_line(aes(color=naics, group=naics), size = 1) + 
+    ggtitle("Line Plot of Industry and  Initial Denials Percentage by Year")+
+    geom_point(aes(color=naics), size=3) +
+    theme(plot.title = element_text(hjust = 0.5)) + 
+    xlab("Year")+ ylab("Percentage(%)")+
+    geom_dl(aes(label = naics, color = naics), method = list(dl.combine("first.polygons", "last.polygons"), cex = 1))+
+    scale_x_continuous(breaks=seq(2009, 2019, 1))+
+    scale_y_continuous(breaks=seq(50, 100, 5))
+ggsave("idenperc.png", width=12, height=9)
+
+
+```
+
+
+### 3.2.2: Continuing Application
+
+```{r fig.width=12, fig.height=9, continuewithyear, echo = 0}
+# use group by to combine same industry together to calculate the total continuing application amount.
+continuingbyyear <- h1b %>% group_by(Fiscal.Year, naics) %>% summarize( totalconaccpt = sum(Continuing.Approvals, na.rm = T),
+                                                  totalconden = sum(Continuing.Denials, na.rm = T),
+                                                  totalcontinue = sum(Continuing.Approvals,na.rm = T)+sum(Continuing.Denials,na.rm = T),
+                                                  caccptperc = (totalconaccpt/totalcontinue) * 100,
+                                                  cdenperc = ( totalconden /totalcontinue) * 100 )
+
+
+ggplot(continuingbyyear, aes(x=Fiscal.Year, y=caccptperc)) + 
+    geom_line(aes(color=naics, group=naics), size = 1) + 
+    ggtitle("Line Plot of Industry and Continuing Approvals Percentage by Year")+
+    geom_point(aes(color=naics), size=3) +
+    theme(plot.title = element_text(hjust = 0.5)) + 
+    xlab("Year")+ ylab("Percentage(%)")+
+    geom_dl(aes(label = naics, color = naics), method = list(dl.combine("first.polygons", "last.polygons"), cex = 1))+
+    scale_x_continuous(breaks=seq(2009, 2019, 1))+
+    scale_y_continuous(breaks=seq(50, 100, 5))
+
+ggsave("caccptperc.png", width=12, height=9)
+
+ggplot(continuingbyyear, aes(x=Fiscal.Year, y=cdenperc)) + 
+    geom_line(aes(color=naics, group=naics),size = 1) + 
+    ggtitle("Line Plot of Industry and Continuing Denials Percentage by Year")+
+    geom_point(aes(color=naics), size=3) +
+    theme(plot.title = element_text(hjust = 0.5)) + 
+    xlab("Year")+ ylab("Percentage(%)")+
+    geom_dl(aes(label = naics, color = naics), method = list(dl.combine("first.polygons", "last.polygons"), cex = 1))+
+    scale_x_continuous(breaks=seq(2009, 2019, 1))+
+    scale_y_continuous(breaks=seq(50, 100, 5))
+
+ggsave("cdenperc.png", width=12, height=9)
+
+```
+
+
+```{r}
+#install.packages("plotly")
+library(plotly)
+plot_ly(initialbyyear, x = ~iaccptperc, y = ~Fiscal.Year, z = ~naics, type = 'scatter3d', mode = 'lines', color = ~naics) %>%
+  add_markers() %>%
+  layout(scene = list(xaxis = list(title = '%'),
+                     yaxis = list(title = 'YEAR'),
+                     zaxis = list(title = 'naics')))
+
+
+
+# Create a shareable link to your chart
+# Set up API credentials: https://plot.ly/r/getting-started
+#chart_link = api_create(p, filename="scatter3d-basic")
+#chart_link
+```
+
+### 3.2.2: Continuing Application
+
+# Citation
+
+What is H1B Visa? (n.d.). Retrieved October 14, 2019, from https://www.path2usa.com/what-is-h1b-visa.
+
+USCIS Reaches FY 2019 H-1B Cap. (2018, April 6). Retrieved October 14, 2019, from https://www.uscis.gov/news/alerts/uscis-reaches-fy-2019-h-1b-cap.
+
+Buy American and Hire American. (2019, April 26). Retrieved October 14, 2019, from https://www.uscis.gov/legal-resources/buy-american-hire-american-putting-american-workers-first.
+
+Search NAICS Codes by Industry. (n.d.). Retrieved October 15, 2019, from https://www.naics.com/search-naics-codes-by-industry/.
+
 
