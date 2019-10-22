@@ -1,6 +1,6 @@
 ---
 title: "H-1B Visa"
-author: "Cheng Zeng, Wenyu Zeng, Chao Zhou, Spencer Stucky"
+author: "Spencer Stucky, Cheng Zeng, Wenyu Zeng, Chao Zhou"
 date: "10/14/2019"
 output:
   html_document:
@@ -38,6 +38,8 @@ xxxxxxx
 ## 3.1: Industries vs NAICS 
 ### 3.1.1: Initial Application
 
+问是否需要总结每一个产业的通过和拒签率。 can summarize the overall status but it's hard to actually analysis the result because different year for different industry increase and decrease. It have to combine with the year and see why this change happens. 
+
 ```{r initial, echo=FALSE} 
 library(ggplot2)
 h1b$naics = as.factor(h1b$NAICS)
@@ -52,22 +54,24 @@ ggplot(initial, aes(x = naics, y = iaccptperc, color = naics, fill = naics)) + #
   geom_bar(stat ="identity") + 
   xlab("NAICS CODE") + 
   ylab("Total Initial Approvals Percentage")
+
+ggsave("Total Initial Approvals Percentage.png", width=12, height=9)
+
 ggplot(initial, aes(x = naics, y = idenperc, color = naics, , fill = naics)) + # percentage of initial denials rate and color by industry code
   geom_bar(stat ="identity") + 
   xlab("NAICS CODE") + 
   ylab("Total Initial Denials Percentage")
 
+ggsave("Total Denial Approvals Percentage.png", width=12, height=9)
 ```
-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-XXXXXXXXXXXXXXXXXXXXXXX
-XXXXXXXXXXXXXXXXX
-XXXXXXXXXXXXXX
-XXXXXXXXXX
-XXXXXXXXX
-XXXX
-XXX
-X
-X
+
+21(Mining): highest approval rate and lowest denial rate. 
+
+
+72(Accommodation and Food Services): lowest approval rate and highest denial rate
+
+https://www.h1b.biz/hospitality-and-immigration-law-visas-for-chefs-cooks-and-other.html
+
 ### 3.1.2: Continuing Application
 ```{r continuing, echo=FALSE}
 # use group by to combine same industry together to calculate the total continuing application amount.
@@ -77,9 +81,13 @@ continuing <- h1b %>% group_by(naics) %>% summarize( totalconaccpt = sum(Continu
                                                   caccptperc = (totalconaccpt/totalcontinue) * 100,
                                                   cdenperc = ( totalconden /totalcontinue) * 100 )
 ggplot(continuing, aes(x = naics, y = caccptperc, color = naics, fill = naics)) + geom_bar(stat ="identity") + xlab("NAICS CODE") + ylab("Total Continuing Approvals Percentage")
+ggsave("Total Continuing Approvals Percentage.png", width=12, height=9)
 ggplot(continuing, aes(x = naics, y = cdenperc, color = naics, fill = naics)) + geom_bar(stat ="identity") + xlab("NAICS CODE") + ylab("Total Continuing Denials Percentage")
+ggsave("Total Continuing DenialsPercentage.png", width=12, height=9)
 ```
-
+99: This major group includes establishments which cannot be classified in any other industry. Establishments which can be classified in a division should be classified in the most appropriate industry within that division.
+99(Nonclassifiable Establishments): lowest appoval rate and highest denial rate
+55(Management of Companies and Enterprises): highest approval rate and lowest denial rate. Financial & Banking.
 
 ## 3.2: Industries vs NAICS by Year
 
@@ -120,12 +128,16 @@ ggsave("idenperc.png", width=12, height=9)
 
 
 ```
+54(	Professional, Scientific, and Technical Services) changed significant between 2009 to 2010.
+54 is also changed significant between 2017 to 2018 which is 29.37%. The second one is 11(Agriculture, Forestry, Fishing and Hunting) 28.51.
+49(Transportation and Warehousing) changed significant between 2014-2015.
+51 (Information) changed the least betwen 2017 to 2018 which is 1.78, the second one is 42(Wholesale Trade) 1.79.
 
 
 ### 3.2.2: Continuing Application
 
 ```{r fig.width=12, fig.height=9, continuewithyear, echo = 0}
-# use group by to combine same industry together to calculate the total continuing application amount.
+#use group by to combine same industry together to calculate the total continuing application amount.
 continuingbyyear <- h1b %>% group_by(Fiscal.Year, naics) %>% summarize( totalconaccpt = sum(Continuing.Approvals, na.rm = T),
                                                   totalconden = sum(Continuing.Denials, na.rm = T),
                                                   totalcontinue = sum(Continuing.Approvals,na.rm = T)+sum(Continuing.Denials,na.rm = T),
@@ -158,26 +170,18 @@ ggplot(continuingbyyear, aes(x=Fiscal.Year, y=cdenperc)) +
 ggsave("cdenperc.png", width=12, height=9)
 
 ```
-
-
-```{r}
-#install.packages("plotly")
-library(plotly)
-plot_ly(initialbyyear, x = ~iaccptperc, y = ~Fiscal.Year, z = ~naics, type = 'scatter3d', mode = 'lines', color = ~naics) %>%
-  add_markers() %>%
-  layout(scene = list(xaxis = list(title = '%'),
-                     yaxis = list(title = 'YEAR'),
-                     zaxis = list(title = 'naics')))
+11(Agriculture, Forestry, Fishing and Hunting) changed the most in 2018 which is 20.43, the second one is 54 (Professional, Scientific, and Technical Services).
+in 2018, 61(Educational Services) changed the least which is 0.1, the second one is 82(Other Services (except Public Administration)) 0.26.
 
 
 
-# Create a shareable link to your chart
-# Set up API credentials: https://plot.ly/r/getting-started
-#chart_link = api_create(p, filename="scatter3d-basic")
-#chart_link
-```
+# Spenser
+https://economictimes.indiatimes.com/nri/visa-and-immigration/10-per-cent-drop-in-h1b-visa-approvals-in-2018-us-authorities/articleshow/69659107.cms?from=mdr
 
-### 3.2.2: Continuing Application
+https://www.forbes.com/sites/stuartanderson/2019/04/10/new-data-show-h-1b-denial-rates-reaching-highest-levels/#2797c7de797f
+
+
+
 
 # Citation
 
@@ -187,6 +191,10 @@ USCIS Reaches FY 2019 H-1B Cap. (2018, April 6). Retrieved October 14, 2019, fro
 
 Buy American and Hire American. (2019, April 26). Retrieved October 14, 2019, from https://www.uscis.gov/legal-resources/buy-american-hire-american-putting-american-workers-first.
 
+Kumar. (2019, May 26). H1B Historical Data – Lottery vs 85K Quota, Masters vs Regular Split. Retrieved October 22, 2019, from https://redbus2us.com/h1b-historical-data-lottery-vs-85k-quota-masters-vs-regular-split/.
+
 Search NAICS Codes by Industry. (n.d.). Retrieved October 15, 2019, from https://www.naics.com/search-naics-codes-by-industry/.
 
+SIC Major Group: 99 Nonclassifiable Establishments. (n.d.). Retrieved October 21, 2019, from https://www.naics.com/standard-industrial-code-divisions/?code=99.
 
+Zaveri, P., & Roy, A. (2019, April 2). Changes to H-1B visa lottery create 'stress' for tech companies and employees. Retrieved October 22, 2019, from https://www.cnbc.com/2019/04/01/h1-b-lottery-changes-in-2018-masters-candidates-more-inspections.html.
