@@ -16,7 +16,9 @@ output:
 
 ```{r, include = F}
 library(dplyr)
+library(maps)
 h1b <- read.csv('h1b_datahubexport_2009-2019.csv')
+#h1b <- h1b[h1b$State %in%state.abb,]
 ```
 How have U.S. H1b visa acceptances and denials changed over the course of 2015-2019?1a) How does industry effect H1b visas from the time spanning 2015-2019?
 
@@ -36,9 +38,9 @@ xxxxxxx
 # Chapter 3: Industries Factor
 
 ## 3.1: Industries vs NAICS 
-### 3.1.1: Initial Application
-
-问是否需要总结每一个产业的通过和拒签率。 can summarize the overall status but it's hard to actually analysis the result because different year for different industry increase and decrease. It have to combine with the year and see why this change happens. 
+### 3.1: S.M.A.R.T Question
+**How does industry affect H1b visas from the time spanning 2009-2019?**
+### 3.2.1: Initial Application
 
 ```{r initial, echo=FALSE} 
 library(ggplot2)
@@ -47,32 +49,35 @@ h1b$naics = as.factor(h1b$NAICS)
 initial <- h1b %>% group_by(naics) %>% summarize( totaliniaccpt = sum(Initial.Approvals, na.rm = T), #shows total number of initail approvals
                                                   totaliniden = sum(Initial.Denials, na.rm = T), # shows total number of initial denials
                                                   totalinitial = sum(Initial.Approvals,na.rm = T)+sum(Initial.Denials,na.rm = T), # shows total number of initial application
-                                                  iaccptperc = (totaliniaccpt/totalinitial)*100, round(iaccptperc, digits = 2), # percentage of initial approval rate
-                                                  idenperc = (totaliniden/totalinitial)*100, round(idenperc, digits = 2)) #percentage of initial denial rate
+                                                  iaccptperc = (totaliniaccpt/totalinitial)*100, # percentage of initial approval rate
+                                                  idenperc = (totaliniden/totalinitial)*100) #percentage of initial denial rate
+# 
+# ggplot(initial, aes(x = naics, y = iaccptperc, color = naics, fill = naics)) + # percentage of initial approvals rate and color by industry code
+#   geom_bar(stat ="identity") +
+#   xlab("NAICS CODE") +
+#   ylab("Total Initial Approvals Percentage")
+# 
+# ggsave("Total Initial Approvals Percentage.png", width=12, height=9)
 
-ggplot(initial, aes(x = naics, y = iaccptperc, color = naics, fill = naics)) + # percentage of initial approvals rate and color by industry code
-  geom_bar(stat ="identity") + 
-  xlab("NAICS CODE") + 
-  ylab("Total Initial Approvals Percentage")
-
-ggsave("Total Initial Approvals Percentage.png", width=12, height=9)
+head(initial,n=5)
 
 ggplot(initial, aes(x = naics, y = idenperc, color = naics, , fill = naics)) + # percentage of initial denials rate and color by industry code
   geom_bar(stat ="identity") + 
   xlab("NAICS CODE") + 
-  ylab("Total Initial Denials Percentage")
-
+  ylab("Total Initial Denials Percentage") 
 ggsave("Total Denial Approvals Percentage.png", width=12, height=9)
+
+
 ```
 
 21(Mining): highest approval rate and lowest denial rate. 
-
+https://www.thermofisher.com/blog/mining/mining-industry-employees-are-in-demand/
 
 72(Accommodation and Food Services): lowest approval rate and highest denial rate
 
 https://www.h1b.biz/hospitality-and-immigration-law-visas-for-chefs-cooks-and-other.html
 
-### 3.1.2: Continuing Application
+### 3.2.2: Continuing Application
 ```{r continuing, echo=FALSE}
 # use group by to combine same industry together to calculate the total continuing application amount.
 continuing <- h1b %>% group_by(naics) %>% summarize( totalconaccpt = sum(Continuing.Approvals, na.rm = T),
@@ -80,8 +85,9 @@ continuing <- h1b %>% group_by(naics) %>% summarize( totalconaccpt = sum(Continu
                                                   totalcontinue = sum(Continuing.Approvals,na.rm = T)+sum(Continuing.Denials,na.rm = T),
                                                   caccptperc = (totalconaccpt/totalcontinue) * 100,
                                                   cdenperc = ( totalconden /totalcontinue) * 100 )
-ggplot(continuing, aes(x = naics, y = caccptperc, color = naics, fill = naics)) + geom_bar(stat ="identity") + xlab("NAICS CODE") + ylab("Total Continuing Approvals Percentage")
-ggsave("Total Continuing Approvals Percentage.png", width=12, height=9)
+# ggplot(continuing, aes(x = naics, y = caccptperc, color = naics, fill = naics)) + geom_bar(stat ="identity") + xlab("NAICS CODE") + ylab("Total Continuing Approvals Percentage")
+# ggsave("Total Continuing Approvals Percentage.png", width=12, height=9)
+head(continuing,n=5)
 ggplot(continuing, aes(x = naics, y = cdenperc, color = naics, fill = naics)) + geom_bar(stat ="identity") + xlab("NAICS CODE") + ylab("Total Continuing Denials Percentage")
 ggsave("Total Continuing DenialsPercentage.png", width=12, height=9)
 ```
@@ -89,9 +95,9 @@ ggsave("Total Continuing DenialsPercentage.png", width=12, height=9)
 99(Nonclassifiable Establishments): lowest appoval rate and highest denial rate
 55(Management of Companies and Enterprises): highest approval rate and lowest denial rate. Financial & Banking.
 
-## 3.2: Industries vs NAICS by Year
+## 3.3: Industries vs NAICS by Year
 
-### 3.2.1: Initial Application
+### 3.3.1: Initial Application
 
 ```{r fig.width=12, fig.height=9,initialwithyear, echo=F}
 #install.packages("directlabels")
@@ -103,6 +109,7 @@ initialbyyear <- h1b %>% group_by(Fiscal.Year, naics) %>% summarize( totaliniacc
                                                   iaccptperc = (totaliniaccpt/totalinitial)*100, 
                                                   idenperc = (totaliniden/totalinitial)*100)
 
+head(initialbyyear,n=5)
 ggplot(initialbyyear, aes(x=Fiscal.Year, y=iaccptperc)) + 
     geom_line(aes(color=naics, group=naics), size = 1) +   # create the line by nacis code
     ggtitle("Line Plot of Industry and  Initial Approvals Percentage by Year")+
@@ -115,16 +122,16 @@ ggplot(initialbyyear, aes(x=Fiscal.Year, y=iaccptperc)) +
 
 ggsave("iaccptperc.png", width=12, height=9)
 
-ggplot(initialbyyear, aes(x=Fiscal.Year, y=idenperc)) + 
-    geom_line(aes(color=naics, group=naics), size = 1) + 
-    ggtitle("Line Plot of Industry and  Initial Denials Percentage by Year")+
-    geom_point(aes(color=naics), size=3) +
-    theme(plot.title = element_text(hjust = 0.5)) + 
-    xlab("Year")+ ylab("Percentage(%)")+
-    geom_dl(aes(label = naics, color = naics), method = list(dl.combine("first.polygons", "last.polygons"), cex = 1))+
-    scale_x_continuous(breaks=seq(2009, 2019, 1))+
-    scale_y_continuous(breaks=seq(50, 100, 5))
-ggsave("idenperc.png", width=12, height=9)
+# ggplot(initialbyyear, aes(x=Fiscal.Year, y=idenperc)) + 
+#     geom_line(aes(color=naics, group=naics), size = 1) + 
+#     ggtitle("Line Plot of Industry and  Initial Denials Percentage by Year")+
+#     geom_point(aes(color=naics), size=3) +
+#     theme(plot.title = element_text(hjust = 0.5)) + 
+#     xlab("Year")+ ylab("Percentage(%)")+
+#     geom_dl(aes(label = naics, color = naics), method = list(dl.combine("first.polygons", "last.polygons"), cex = 1))+
+#     scale_x_continuous(breaks=seq(2009, 2019, 1))+
+#     scale_y_continuous(breaks=seq(50, 100, 5))
+# ggsave("idenperc.png", width=12, height=9)
 
 
 ```
@@ -134,17 +141,17 @@ ggsave("idenperc.png", width=12, height=9)
 51 (Information) changed the least betwen 2017 to 2018 which is 1.78, the second one is 42(Wholesale Trade) 1.79.
 
 
-### 3.2.2: Continuing Application
+### 3.3.2: Continuing Application
 
 ```{r fig.width=12, fig.height=9, continuewithyear, echo = 0}
 #use group by to combine same industry together to calculate the total continuing application amount.
-continuingbyyear <- h1b %>% group_by(Fiscal.Year, naics) %>% summarize( totalconaccpt = sum(Continuing.Approvals, na.rm = T),
+continuingbyyear <- h1b %>% group_by(Fiscal.Year, naics) %>% summarize(totalconaccpt = sum(Continuing.Approvals, na.rm = T),
                                                   totalconden = sum(Continuing.Denials, na.rm = T),
                                                   totalcontinue = sum(Continuing.Approvals,na.rm = T)+sum(Continuing.Denials,na.rm = T),
                                                   caccptperc = (totalconaccpt/totalcontinue) * 100,
                                                   cdenperc = ( totalconden /totalcontinue) * 100 )
 
-
+head(continuingbyyear,n=5)
 ggplot(continuingbyyear, aes(x=Fiscal.Year, y=caccptperc)) + 
     geom_line(aes(color=naics, group=naics), size = 1) + 
     ggtitle("Line Plot of Industry and Continuing Approvals Percentage by Year")+
@@ -157,17 +164,17 @@ ggplot(continuingbyyear, aes(x=Fiscal.Year, y=caccptperc)) +
 
 ggsave("caccptperc.png", width=12, height=9)
 
-ggplot(continuingbyyear, aes(x=Fiscal.Year, y=cdenperc)) + 
-    geom_line(aes(color=naics, group=naics),size = 1) + 
-    ggtitle("Line Plot of Industry and Continuing Denials Percentage by Year")+
-    geom_point(aes(color=naics), size=3) +
-    theme(plot.title = element_text(hjust = 0.5)) + 
-    xlab("Year")+ ylab("Percentage(%)")+
-    geom_dl(aes(label = naics, color = naics), method = list(dl.combine("first.polygons", "last.polygons"), cex = 1))+
-    scale_x_continuous(breaks=seq(2009, 2019, 1))+
-    scale_y_continuous(breaks=seq(50, 100, 5))
-
-ggsave("cdenperc.png", width=12, height=9)
+# ggplot(continuingbyyear, aes(x=Fiscal.Year, y=cdenperc)) + 
+#     geom_line(aes(color=naics, group=naics),size = 1) + 
+#     ggtitle("Line Plot of Industry and Continuing Denials Percentage by Year")+
+#     geom_point(aes(color=naics), size=3) +
+#     theme(plot.title = element_text(hjust = 0.5)) + 
+#     xlab("Year")+ ylab("Percentage(%)")+
+#     geom_dl(aes(label = naics, color = naics), method = list(dl.combine("first.polygons", "last.polygons"), cex = 1))+
+#     scale_x_continuous(breaks=seq(2009, 2019, 1))+
+#     scale_y_continuous(breaks=seq(50, 100, 5))
+# 
+# ggsave("cdenperc.png", width=12, height=9)
 
 ```
 11(Agriculture, Forestry, Fishing and Hunting) changed the most in 2018 which is 20.43, the second one is 54 (Professional, Scientific, and Technical Services).
@@ -175,10 +182,7 @@ in 2018, 61(Educational Services) changed the least which is 0.1, the second one
 
 
 
-# Spenser
-https://economictimes.indiatimes.com/nri/visa-and-immigration/10-per-cent-drop-in-h1b-visa-approvals-in-2018-us-authorities/articleshow/69659107.cms?from=mdr
 
-https://www.forbes.com/sites/stuartanderson/2019/04/10/new-data-show-h-1b-denial-rates-reaching-highest-levels/#2797c7de797f
 
 
 
