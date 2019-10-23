@@ -1,9 +1,18 @@
 ---
 title: "Project1"
-output: html_document
+author: "Wenyu"
+date: "10/22/2019"
+output:
+  html_document:
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
 ---
 
-```{r}
+```{r, include=F}
 h1b <- read.csv('h1b_datahubexport_2009-2019.csv')
 str(h1b)
 #h1b$State
@@ -11,7 +20,7 @@ str(h1b)
 
 1. How have U.S. H1b visa acceptances and denials changed over the course of 2015-2019?
   1a) How does industry effect H1b visas from the time spanning 2015-2019?
-  1b) How does US location effect H1b visas from 2015-2019?
+  1b) How does US location effect H1b visas from 2009-2019?
   1c) How does year affect H1b visa acceptance from 2015-2019?
   1d) How has the change in presidency from 2015-2019 affected H1b visa acceptances and denials?
   
@@ -26,34 +35,45 @@ DV: type of industry
     U.S. presidency
     
     
-```{r}
+```{r, include=F}
 library(dplyr)
 library(tidyr)
 ```
     
-```{r}
+```{r,include=F}
 #nas <- na.omit(h1b$State)
 #nas
 new <- h1b %>% drop_na(State) %>% group_by(State) %>%
   summarise(totalinitialapp = sum(Initial.Approvals, na.rm = T),
             totalinitialden = sum(Initial.Denials, na.rm = T),
             totalcontapp = sum(Continuing.Approvals, na.rm = T),
-            totalcontden = sum(Continuing.Denials, na.rm = T))
+            totalcontden = sum(Continuing.Denials, na.rm = T),
+            totalinitial = sum((totalinitialapp + totalinitialden), na.rm = T),
+            totalcontinue = sum((totalcontapp+totalcontden), na.rm = T),
+            percentiniapp = ((totalinitialapp/totalinitial) * 100),
+            percentiniden = (totalinitialden/totalinitial) * 100,
+            percentcontapp = (totalcontapp/totalcontinue) *100,
+            percentcontden = (totalcontden/totalcontinue) * 100
+            )
 
 test <- h1b %>% drop_na(State) %>% group_by(State) %>%
   summarise(totalinitialapp = sum(Initial.Approvals, na.rm = T))
+head(new)
 ```
 
-```{r}
+```{r, include=F}
 library(ggplot2)
-#install.packages("maps")
 library(maps)
-#install.packages("openintro")
+library(usmap)
 library(openintro)
 library(tidyverse)
 ```
 
-```{r}
+## Chapter 4 States and H1B Visa Status
+### 4.1 SMART Question
+From the tests, we know that US states and H1B visa status are dependent to each other. We are interested to see which states has the most approval/denial rate.
+
+```{r, include=F}
 usstate <- map_data("state")
 copy <- map_data("state")
 colnames(usstate)[colnames(usstate)=="region"] <- "State_name"
@@ -61,31 +81,32 @@ usstate <- usstate %>% mutate(State = state2abbr(State_name))
 
 new$State <- as.character(new$State)
 state_lo <- inner_join(usstate, new, by = "State")
+state_lo <- state_lo[state_lo$State %in%state.abb,]
 head(state_lo)
 ```
 
-```{r}
-state_approval <- state_lo %>% select(long, lat, group, order, State, totalinitialapp, State_name)
+```{r,include=F}
+state_approval <- state_lo %>% select(long, lat, group, order, State, totalinitialapp, percentiniapp, State_name)
 head(state_approval)
 ```
 
-```{r}
-state_den <- state_lo %>% select(long, lat, group, order, State, totalinitialden, State_name)
-state_contapp <- state_lo %>% select(long, lat, group, order, State, totalcontapp, State_name)
-state_contden <- state_lo %>% select(long, lat, group, order, State, totalcontden, State_name)
+```{r, echo=F}
+state_den <- state_lo %>% select(long, lat, group, order, State, totalinitialden, percentiniden, State_name)
+state_contapp <- state_lo %>% select(long, lat, group, order, State, totalcontapp, percentcontapp, State_name)
+state_contden <- state_lo %>% select(long, lat, group, order, State, totalcontden, percentcontden, State_name)
 ```
 
 
-```{r}
+```{r, echo=F}
 us_base <- ggplot(data = state_approval, mapping = aes(x = long, y = lat, group = group)) +
   coord_fixed(1.3) +
   geom_polygon(color = "black", fill = "gray")
 
 #us_base + theme_nothing()
 
-#us_base + theme_nothing() +
-#  geom_polygon(data = state_approval, fill = NA, group = group, color = "white") +
-#  geom_polygon(color = "black", fill = NA)
+# base <- plot_usmap(regions = "states", data = state_approval, values = NULL, include = NULL, exclude = NULL) +
+#   coord_fixed(1.3) +
+#   geom_polygon(color = "black", fill = "gray")
 
 ditch_the_axes <- theme(
   axis.text = element_blank(),
@@ -103,55 +124,98 @@ elbow_rooml <- us_base + geom_polygon(data = state_approval, aes(fill = totalini
 
 ```
 
-#### map of initial approval
-```{r}
-#<<<<<<< Updated upstream
-elbow_rooml 
+### 4.2 Map of initial approval
+Here we can see two maps that show the intial approvals with each state, the first graph
+```{r, echo=F}
+#elbow_rooml 
 
-eb1 <- elbow_rooml + scale_fill_gradient(trans = "log10")
-eb1
+elbow_roomll <- us_base + geom_polygon(data = state_approval, aes(fill = percentiniapp), color = "white") +
+  geom_polygon(color = "black", fill = NA) +
+  theme_bw() +
+  ditch_the_axes
 
-eb2 <- elbow_rooml + scale_fill_gradientn(colours = rainbow(7), breaks = c(min(state_approval$totalinitialapp),1000, 6000, median(state_approval$totalinitialapp), 100000, max(state_approval$totalinitialapp)), trans = "log10")
+eb2 <- elbow_rooml + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), breaks = c(min(state_approval$totalinitialapp),1000, 6000, median(state_approval$totalinitialapp), 100000, max(state_approval$totalinitialapp)), trans = "log10", name = "Numbers of Initial Approval") + labs(title = "Map of Numbers of Initial Approvals in Each State")
 eb2 
-#>>>>>>> Stashed changes 
+
+eb1 <- elbow_roomll + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), name = "Percentage of Initial Approvals") + ggtitle("Map of Percentage of Initial Denials in Each State")
+eb1 
+
 ```
 
-#### map of initial denial
-```{r}
+### 4.3 Map of initial denial
+```{r, echo=F}
 elbow_room2 <- us_base + geom_polygon(data = state_den, aes(fill = totalinitialden), color = "white") +
   geom_polygon(color = "black", fill = NA) +
   theme_bw() +
   ditch_the_axes
 
-eb3 <- elbow_room2 + scale_fill_gradientn(colours = rev(rainbow(7)), breaks = c(min(state_den$totalinitialden),1000, 6000, median(state_den$totalinitialden), 100000, max(state_den$totalinitialden)), trans = "log10")
+eb3 <- elbow_room2 + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), breaks = c(min(state_den$totalinitialden),1000, 6000, median(state_den$totalinitialden), 100000, max(state_den$totalinitialden)), trans = "log10", name = "Number of Initial Denial") + labs(title = "Map of Numbers of Initial Denials in Each State")
 eb3
+
+elbow_room2l <- us_base + geom_polygon(data = state_den, aes(fill = percentiniden), color = "white") +
+  geom_polygon(color = "black", fill = NA) +
+  theme_bw() +
+  ditch_the_axes
+
+eb3l <- elbow_room2l + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), name = "Percentage of Initial Denial") + labs(title = "Map of Percentage of Initial Denials in Each State")
+eb3l
 ```
 
-### map of continue approval
-```{r}
+### 4.4 Map of continue approval
+```{r, echo=F}
 elbow_room3 <- us_base + geom_polygon(data = state_contapp, aes(fill = totalcontapp), color = "white") +
   geom_polygon(color = "black", fill = NA) +
   theme_bw() +
   ditch_the_axes
 
-eb4 <- elbow_room3 + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), breaks = c(min(state_contapp$totalcontapp),1000, 6000, median(state_contapp$totalcontapp), 100000, max(state_contapp$totalcontapp)), trans = "log10") +
-  labs(title = "US map of continue approvals in each state", colours = "Numbers of Continue Approvals\n")
+eb4 <- elbow_room3 + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), breaks = c(min(state_contapp$totalcontapp),1000, 6000, median(state_contapp$totalcontapp), 100000, max(state_contapp$totalcontapp)), trans = "log10", name = "Numbers of Continue Approval") +
+  labs(title = "Map of Numbers of Continue Approvals in Each State") 
 eb4
+
+elbow_room3l <- us_base + geom_polygon(data = state_contapp, aes(fill = percentcontapp), color = "white") +
+  geom_polygon(color = "black", fill = NA) +
+  theme_bw() +
+  ditch_the_axes
+
+eb4l <- elbow_room3l + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), name = "Percentage of Continue Approval") +
+  labs(title = "Map of Percentage of Continue Approvals in Each State") 
+eb4l
 ```
 
-#### map of continue denial
-```{r}
+### 4.5 Map of continue denial
+```{r, echo=F}
 elbow_room4 <- us_base + geom_polygon(data = state_contden, aes(fill = totalcontden), color = "white") +
   geom_polygon(color = "black", fill = NA) +
   theme_bw() +
   ditch_the_axes
 
-eb5 <- elbow_room4 + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), breaks = c(min(state_contden$totalcontden),1000, 6000, median(state_contden$totalcontden), 100000, max(state_contden$totalcontden)), trans = "log10")
+eb5 <- elbow_room4 + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), breaks = c(min(state_contden$totalcontden),1000, 6000, median(state_contden$totalcontden), 100000, max(state_contden$totalcontden)), trans = "log10", name = "Numbers of continue denial") + labs(title = "Map of Numbers of Continue Denials in Each State")
 eb5
+
+elbow_room4l <- us_base + geom_polygon(data = state_contden, aes(fill = percentcontden), color = "white") +
+  geom_polygon(color = "black", fill = NA) +
+  theme_bw() +
+  ditch_the_axes
+
+eb5l <- elbow_room4l + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), name = "Percentage of continue denial") + labs(title = "Map of Percentage of Continue Denials in Each State")
+eb5l
 ```
 
 #### relations
-```{r}
+```{r, include=F}
+try1 <- table(h1b$State, h1b$Fiscal.Year)
+chisq.test(try1)
 
+# try2<- table(new$State, new$percenti)
+# chisq.test(try2)
+summary(h1b)
+str(state_lo)
+```
+
+```{r, include=F}
+prop.test(500000, 1111111, p=0.5)
+
+try3 <- aov(h1b$Initial.Approvals ~ h1b$State, na.rm = T)
+summary(try3)
 ```
 
