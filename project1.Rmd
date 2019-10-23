@@ -137,9 +137,11 @@ elbow_roomll <- us_base + geom_polygon(data = state_approval, aes(fill = percent
 eb2 <- elbow_rooml + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), breaks = c(min(state_approval$totalinitialapp),1000, 6000, median(state_approval$totalinitialapp), 100000, max(state_approval$totalinitialapp)), trans = "log10", name = "Numbers of Initial Approval") + labs(title = "Map of Numbers of Initial Approvals in Each State")
 eb2 
 
-eb1 <- elbow_roomll + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), name = "Percentage of Initial Approvals") + ggtitle("Map of Percentage of Initial Denials in Each State")
+eb1 <- elbow_roomll + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), name = "Percentage of Initial Approvals", breaks = c(96, 92, 88, 84, min(state_approval$percentiniapp))) + ggtitle("Map of Percentage of Initial Approvals in Each State")
 eb1 
 
+eb2 + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45))
+eb1 + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45))
 ```
 
 ### 4.3 Map of initial denial
@@ -157,8 +159,13 @@ elbow_room2l <- us_base + geom_polygon(data = state_den, aes(fill = percentinide
   theme_bw() +
   ditch_the_axes
 
-eb3l <- elbow_room2l + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), name = "Percentage of Initial Denial") + labs(title = "Map of Percentage of Initial Denials in Each State")
+a <- c(4, 8, 12, 16, 19)
+
+eb3l <- elbow_room2l + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), breaks = a, name = "Percentage of Initial Denial") + labs(title = "Map of Percentage of Initial Denials in Each State")
 eb3l
+
+eb3 + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45))
+eb3l + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45))
 ```
 
 ### 4.4 Map of continue approval
@@ -180,6 +187,9 @@ elbow_room3l <- us_base + geom_polygon(data = state_contapp, aes(fill = percentc
 eb4l <- elbow_room3l + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), name = "Percentage of Continue Approval") +
   labs(title = "Map of Percentage of Continue Approvals in Each State") 
 eb4l
+
+eb4 + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45))
+eb4l + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45))
 ```
 
 ### 4.5 Map of continue denial
@@ -197,8 +207,11 @@ elbow_room4l <- us_base + geom_polygon(data = state_contden, aes(fill = percentc
   theme_bw() +
   ditch_the_axes
 
-eb5l <- elbow_room4l + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), name = "Percentage of continue denial") + labs(title = "Map of Percentage of Continue Denials in Each State")
+eb5l <- elbow_room4l + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), name = "Percentage of continue denial", breaks = c(2, 3, 4, 5, 6, 7, 7.78)) + labs(title = "Map of Percentage of Continue Denials in Each State")
 eb5l
+
+eb5 + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45))
+eb5l + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45))
 ```
 
 #### relations
@@ -217,5 +230,19 @@ prop.test(500000, 1111111, p=0.5)
 
 try3 <- aov(h1b$Initial.Approvals ~ h1b$State, na.rm = T)
 summary(try3)
+```
+
+```{r}
+m1 <- new %>% group_by(State) %>% arrange(desc(percentiniapp)) %>% head()
+m2 <- new %>% group_by(State) %>% arrange(desc(totalinitialapp)) %>% head()
+m1
+m2
+```
+
+```{r}
+m3 <- new %>% group_by(State) %>% arrange(desc(totalcontapp)) %>% head(n = 10)
+m3
+m4 <- new %>% group_by(State) %>% arrange(desc(percentcontapp)) %>% head(n =10)
+m4
 ```
 
