@@ -1,0 +1,289 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={H-1B Visa},
+            pdfauthor={Spencer Stucky, Cheng Zeng, Wenyu Zeng, Chao Zhou},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\providecommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{H-1B Visa}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{Spencer Stucky, Cheng Zeng, Wenyu Zeng, Chao Zhou}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{10/14/2019}
+
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{4}
+\tableofcontents
+}
+How have U.S. H1b visa acceptances and denials changed over the course
+of 2015-2019?1a) How does industry effect H1b visas from the time
+spanning 2015-2019?
+
+\hypertarget{chapter-1-introduction}{%
+\section{Chapter 1: Introduction}\label{chapter-1-introduction}}
+
+H-1B visa is a type of non-immigrate visa of United States that under
+the Immigration and Nationality Act since 1952. This visa allows foreign
+workers (individual) to enter United Stated to temporarily be employed
+by U.S. employers in specialty occupations. (Path2usa) With the
+development of the world, more and more people are looking for
+opportunities in U.S. Therefore, the number of applications for H-1B are
+rising every year. Each year, the total number of H-1B petitions that
+U.S. congress allowed to approve for a fiscal year is 65,000 for regular
+cap and 20,000 master's exemption. (USCIS) According to the summary of
+USCIS H-1B 2019, there are more than 190,000 applications were submitted
+and 94,213 for regular quota and 95,885 for master quota. (USCIS)
+However, after Donald Trump become president, he signed the ``Buy
+American, Hire American'' executive order in April 2017. (USCIS) Though,
+this order helps U.S. employers hire most-skills foreign employees, the
+approval of this visa became harder and harder.
+
+Nonetheless, politics is not the only factor that affects H-1B's
+approval rate, but industries and location are also impact it. In this
+report, we will focus on the relationship in
+\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_.
+
+\hypertarget{chapter-2-description-of-data}{%
+\section{Chapter 2: Description of
+Data}\label{chapter-2-description-of-data}}
+
+xxxxxxx
+
+\begin{verbatim}
+## 'data.frame':    610105 obs. of  11 variables:
+##  $ Fiscal.Year         : int  2009 2009 2009 2009 2009 2009 2009 2009 2009 2009 ...
+##  $ Employer            : Factor w/ 280221 levels ""," UNIV OF MASSACHUSETTS DARTMOUTH",..: 104020 157432 25991 86231 6694 124883 31516 196555 21303 544 ...
+##  $ Initial.Approvals   : int  1 3 0 1 1 0 0 1 1 9 ...
+##  $ Initial.Denials     : int  0 0 0 0 0 0 1 0 0 4 ...
+##  $ Continuing.Approvals: int  0 1 1 0 0 4 0 0 0 12 ...
+##  $ Continuing.Denials  : int  0 0 0 0 0 0 0 0 0 3 ...
+##  $ NAICS               : int  53 54 99 61 48 54 48 61 54 54 ...
+##  $ State               : Factor w/ 60 levels "","\004","AE",..: 14 39 39 42 39 39 39 39 39 39 ...
+##  $ City                : Factor w/ 8772 levels "",".DURHAM","AABBOTT PARK",..: 4748 2062 929 5309 2310 2183 6497 6253 8419 7224 ...
+##  $ ZIP                 : int  33156 8816 7828 10016 7632 8837 7657 8540 8618 8873 ...
+##  $ Presidency          : Factor w/ 2 levels "Obama","Trump": 1 1 1 1 1 1 1 1 1 1 ...
+\end{verbatim}
+
+xxxxxxx
+
+\hypertarget{chapter-3-industries-factor}{%
+\section{Chapter 3: Industries
+Factor}\label{chapter-3-industries-factor}}
+
+\hypertarget{industries-vs-naics}{%
+\subsection{3.1: Industries vs NAICS}\label{industries-vs-naics}}
+
+\hypertarget{s.m.a.r.t-question}{%
+\subsubsection{3.1: S.M.A.R.T Question}\label{s.m.a.r.t-question}}
+
+\textbf{How does industry affect H1b visas from the time spanning
+2009-2019?}
+
+\hypertarget{initial-application}{%
+\subsubsection{3.2.1: Initial Application}\label{initial-application}}
+
+\begin{verbatim}
+## # A tibble: 5 x 6
+##   naics totaliniaccpt totaliniden totalinitial iaccptperc idenperc
+##   <fct>         <int>       <int>        <int>      <dbl>    <dbl>
+## 1 11             1235         223         1458       84.7    15.3 
+## 2 21             5144         152         5296       97.1     2.87
+## 3 22             2760         110         2870       96.2     3.83
+## 4 23             4932         470         5402       91.3     8.70
+## 5 31             6022         769         6791       88.7    11.3
+\end{verbatim}
+
+\includegraphics{project1_files/figure-latex/initial-1.pdf}
+
+21(Mining): highest approval rate and lowest denial rate.
+\url{https://www.thermofisher.com/blog/mining/mining-industry-employees-are-in-demand/}
+
+72(Accommodation and Food Services): lowest approval rate and highest
+denial rate
+
+\url{https://www.h1b.biz/hospitality-and-immigration-law-visas-for-chefs-cooks-and-other.html}
+
+\hypertarget{continuing-application}{%
+\subsubsection{3.2.2: Continuing
+Application}\label{continuing-application}}
+
+\begin{verbatim}
+## # A tibble: 5 x 6
+##   naics totalconaccpt totalconden totalcontinue caccptperc cdenperc
+##   <fct>         <int>       <int>         <int>      <dbl>    <dbl>
+## 1 11             1620         117          1737       93.3     6.74
+## 2 21             8087         250          8337       97.0     3.00
+## 3 22             5901         123          6024       98.0     2.04
+## 4 23             6439         285          6724       95.8     4.24
+## 5 31            10638         381         11019       96.5     3.46
+\end{verbatim}
+
+\includegraphics{project1_files/figure-latex/continuing-1.pdf} 99: This
+major group includes establishments which cannot be classified in any
+other industry. Establishments which can be classified in a division
+should be classified in the most appropriate industry within that
+division. 99(Nonclassifiable Establishments): lowest appoval rate and
+highest denial rate 55(Management of Companies and Enterprises): highest
+approval rate and lowest denial rate. Financial \& Banking.
+
+\hypertarget{industries-vs-naics-by-year}{%
+\subsection{3.3: Industries vs NAICS by
+Year}\label{industries-vs-naics-by-year}}
+
+\hypertarget{initial-application-1}{%
+\subsubsection{3.3.1: Initial Application}\label{initial-application-1}}
+
+\begin{verbatim}
+## # A tibble: 5 x 7
+## # Groups:   Fiscal.Year [1]
+##   Fiscal.Year naics totaliniaccpt totaliniden totalinitial iaccptperc
+##         <int> <fct>         <int>       <int>        <int>      <dbl>
+## 1        2009 11              198          25          223       88.8
+## 2        2009 21              768          12          780       98.5
+## 3        2009 22              436           6          442       98.6
+## 4        2009 23              417          17          434       96.1
+## 5        2009 31              793          63          856       92.6
+## # ... with 1 more variable: idenperc <dbl>
+\end{verbatim}
+
+\includegraphics{project1_files/figure-latex/initialwithyear-1.pdf} 54(
+Professional, Scientific, and Technical Services) changed significant
+between 2009 to 2010. 54 is also changed significant between 2017 to
+2018 which is 29.37\%. The second one is 11(Agriculture, Forestry,
+Fishing and Hunting) 28.51. 49(Transportation and Warehousing) changed
+significant between 2014-2015. 51 (Information) changed the least betwen
+2017 to 2018 which is 1.78, the second one is 42(Wholesale Trade) 1.79.
+
+\hypertarget{continuing-application-1}{%
+\subsubsection{3.3.2: Continuing
+Application}\label{continuing-application-1}}
+
+\begin{verbatim}
+## # A tibble: 5 x 7
+## # Groups:   Fiscal.Year [1]
+##   Fiscal.Year naics totalconaccpt totalconden totalcontinue caccptperc
+##         <int> <fct>         <int>       <int>         <int>      <dbl>
+## 1        2009 11              187          10           197       94.9
+## 2        2009 21              659          15           674       97.8
+## 3        2009 22              494           8           502       98.4
+## 4        2009 23              559          22           581       96.2
+## 5        2009 31              941          34           975       96.5
+## # ... with 1 more variable: cdenperc <dbl>
+\end{verbatim}
+
+\includegraphics{project1_files/figure-latex/continuewithyear-1.pdf}
+11(Agriculture, Forestry, Fishing and Hunting) changed the most in 2018
+which is 20.43, the second one is 54 (Professional, Scientific, and
+Technical Services). in 2018, 61(Educational Services) changed the least
+which is 0.1, the second one is 82(Other Services (except Public
+Administration)) 0.26.
+
+\hypertarget{citation}{%
+\section{Citation}\label{citation}}
+
+What is H1B Visa? (n.d.). Retrieved October 14, 2019, from
+\url{https://www.path2usa.com/what-is-h1b-visa}.
+
+USCIS Reaches FY 2019 H-1B Cap. (2018, April 6). Retrieved October 14,
+2019, from
+\url{https://www.uscis.gov/news/alerts/uscis-reaches-fy-2019-h-1b-cap}.
+
+Buy American and Hire American. (2019, April 26). Retrieved October 14,
+2019, from
+\url{https://www.uscis.gov/legal-resources/buy-american-hire-american-putting-american-workers-first}.
+
+Kumar. (2019, May 26). H1B Historical Data -- Lottery vs 85K Quota,
+Masters vs Regular Split. Retrieved October 22, 2019, from
+\url{https://redbus2us.com/h1b-historical-data-lottery-vs-85k-quota-masters-vs-regular-split/}.
+
+Search NAICS Codes by Industry. (n.d.). Retrieved October 15, 2019, from
+\url{https://www.naics.com/search-naics-codes-by-industry/}.
+
+SIC Major Group: 99 Nonclassifiable Establishments. (n.d.). Retrieved
+October 21, 2019, from
+\url{https://www.naics.com/standard-industrial-code-divisions/?code=99}.
+
+Zaveri, P., \& Roy, A. (2019, April 2). Changes to H-1B visa lottery
+create `stress' for tech companies and employees. Retrieved October 22,
+2019, from
+\url{https://www.cnbc.com/2019/04/01/h1-b-lottery-changes-in-2018-masters-candidates-more-inspections.html}.
+
+
+\end{document}
