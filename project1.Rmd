@@ -58,11 +58,11 @@ Meow Meow Meow
 
 ## 4.1: Industries vs NAICS 
 
-In this Chapter, we are 
+In this Chapter, we are seaching for the relationship between industries and NAICS.
 
 ### 4.1.1: S.M.A.R.T Question
 
-**Does industry relates to the H-1B initial or continuing approval and denial rate between 2009-2019?**
+**Does industry relates to H-1B initial or continuing approval and denial rate between 2009-2019?**
 
 ### 4.2.1: Initial Application
 
