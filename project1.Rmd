@@ -272,6 +272,11 @@ Search NAICS Codes by Industry. (n.d.). Retrieved October 15, 2019, from https:/
 
 SIC Major Group: 99 Nonclassifiable Establishments. (n.d.). Retrieved October 21, 2019, from https://www.naics.com/standard-industrial-code-divisions/?code=99.
 
+<<<<<<< HEAD
 Zaveri, P., & Roy, A. (2019, April 2). Changes to H-1B visa lottery create 'stress' for tech companies and employees. Retrieved October 22, 2019, from https://www.cnbc.com/2019/04/01/h1-b-lottery-changes-in-2018-masters-candidates-more-inspections.html.
+=======
+1. Does year affect bb
+bff
+>>>>>>> master
 
 Yang, Y. (2018, February 22). Big Banks in U.S. Forced to Reevaluate Hiring Foreign Workers. Retrieved October 23, 2019, from https://www.bloomberg.com/news/articles/2018-02-22/big-banks-in-u-s-forced-to-reevaluate-hiring-foreign-workers.
