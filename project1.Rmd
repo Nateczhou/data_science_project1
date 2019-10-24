@@ -1,20 +1,19 @@
 ---
-title: "Project1"
-output: html_notebook
+title: "H-1B Visa Project"
+author: "Spencer Stucky"
+date: 10/22/19 
+output: 
+  html_document:
+    df_print: paged
 ---
-
-```{r}
-h1b <- read.csv('H1B_2009-2019.csv')
-str(h1b)
-#h1b$State
-```
 
 1. How have U.S. H1b visa acceptances and denials changed over the course of 2015-2019?
   1a) How does industry effect H1b visas from the time spanning 2015-2019?
   1b) How does US location effect H1b visas from 2015-2019?
-  1c) How does year affect H1b visa acceptance from 2015-2019?
-  1d) How has the change in presidency from 2015-2019 affected H1b visa acceptances and denials?
-  
+ ##myQ 1c) How does year affect H1b visa acceptance from 2015-2019? From 2009-19?
+   1d) How has the change in presidency from 2015-2019 affected H1b visa acceptances and denials?
+   
+
 IV: H1b initial approvals
     H1b iniitial denials
     H1b continuing approvals
@@ -24,4 +23,142 @@ DV: type of industry
     U.S. location
     year/time (total 10 yrs and 2015-2019)
     U.S. presidency
+
+```{r setup, include=FALSE}
+# knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(include = F)
+options(scientific=T, digits = 3) 
+#options(scipen=9, digits = 3) 
+# ‘scipen’: integer. A penalty to be applied when deciding to print numeric values in fixed or exponential notation.  Positive values bias towards fixed and negative towards scientific notation: fixed notation will be preferred unless it is more than ‘scipen’ digits wider.
+# use scipen=999 to prevent scientific notation at all times
+```
+
+```{r basicfcn, include=FALSE}
+# can add quietly=T option to the require() function
+loadPkg = function(x) { if (!require(x,character.only=T, quietly =T)) { install.packages(x,dep=T,repos="http://cran.us.r-project.org"); if(!require(x,character.only=T)) stop("Package not found") } }
+```
+
+```{r base_lib, echo=FALSE}
+loadPkg("dplyr")
+# loadPkg("tidyr")
+# loadPkg("tidyverse")
+loadPkg("ggplot2")
+# loadPkg("Rmisc")  # CI function for confidence interval, single vector
+```
+
+```{r , echo=FALSE}
+setwd("~/Documents/Documents/GWU School Work/DATS 6101/data_science_project1-master/GitHub_Project1/data_science_project1")
+```
     
+```{r , }
+h1b <- read.csv("~/Documents/Documents/GWU School Work/DATS 6101/data_science_project1-master/h1b_datahubexport_2009-2019.csv")
+#h1b2 <- h1b[h1b$State %in%state.abb,]
+str(h1b)
+nrow(h1b)
+colnames(h1b)
+```
+
+```{r initial_bar,  echo=FALSE}
+library("ggplot2")
+#h1b$Fiscal.Year = as.factor(h1b$Fiscal.Year)
+# use group by to combine same year together to calculate the total initial application amount.
+initial <- h1b %>% group_by(Fiscal.Year) %>% summarize( totaliniaccpt = sum(Initial.Approvals, na.rm = T), #shows total number of initail approvals
+                                                  totaliniden = sum(Initial.Denials, na.rm = T), # shows total number of initial denials
+                                                  totalinitial = sum(Initial.Approvals,na.rm = T)+sum(Initial.Denials,na.rm = T), # shows total number of initial application
+                                                  iaccptperc = (totaliniaccpt/totalinitial)*100, round(iaccptperc, digits = 2), # percentage of initial approval rate
+                                                  idenperc = (totaliniden/totalinitial)*100, round(idenperc, digits = 2)) #percentage of initial denial rate
+
+head(initial, n=12)
+str(initial)
+
+ggplot(initial, aes(x = Fiscal.Year, y = iaccptperc, color = Fiscal.Year, fill = Fiscal.Year)) + # percentage of initial approvals rate and color by industry code
+  geom_bar(stat ="identity") + 
+  xlab("Year") + 
+  ylab("Total Initial Approvals Percentage")+
+  ggtitle("Total Initial Approvals by Year")+
+ggsave("Total Initial Approvals Percentage.png", width=12, height=9)
+
+ggplot(initial, aes(x = Fiscal.Year, y = idenperc, color = Fiscal.Year, , fill = Fiscal.Year)) + # percentage of initial denials rate and color by industry code
+  geom_bar(stat ="identity") + 
+  xlab("Year") + 
+  ylab("Total Initial Denials Percentage")+
+  ggtitle("Total Initial Denials by Year")+
+ggsave("Total Denial Approvals Percentage.png", width=12, height=9)
+```
+
+```{r cont_bar, echo=FALSE}
+# use group by to combine same year together to calculate the total continuing application amount.
+continuing <- h1b %>% group_by(Fiscal.Year) %>% summarize( totalconaccpt = sum(Continuing.Approvals, na.rm = T),
+                                                  totalconden = sum(Continuing.Denials, na.rm = T),
+                                                  totalcontinue = sum(Continuing.Approvals,na.rm = T)+sum(Continuing.Denials,na.rm = T),
+                                                  caccptperc = (totalconaccpt/totalcontinue) * 100,
+                                                  cdenperc = ( totalconden /totalcontinue) * 100 )
+ggplot(continuing, aes(x = Fiscal.Year, y = caccptperc, color = Fiscal.Year, fill = Fiscal.Year)) + geom_bar(stat ="identity") + xlab("Year") + ylab("Total Continuing Approvals Percentage")+
+  ggtitle("Total Continuing Approvals by Year")+
+ggsave("Total Continuing Approvals Percentage.png", width=12, height=9)
+
+ggplot(continuing, aes(x = Fiscal.Year, y = cdenperc, color = Fiscal.Year, fill = Fiscal.Year)) + geom_bar(stat ="identity") + xlab("Year") + ylab("Total Continuing Denials Percentage")+
+  ggtitle("Total Continuing Denials by Year")+
+ggsave("Total Continuing DenialsPercentage.png", width=12, height=9)
+```
+
+```{r, ini_line_plot}
+#install.packages("directlabels")
+library(directlabels)
+#h1b$Fiscal.Year = as.numeric(h1b$Fiscal.Year)
+initialbyyear <- h1b %>% group_by(Fiscal.Year) %>% summarize( totaliniaccpt = sum(Initial.Approvals, na.rm = T),
+                                                  totaliniden = sum(Initial.Denials, na.rm = T),
+                                                  totalinitial = sum(Initial.Approvals,na.rm = T)+sum(Initial.Denials,na.rm = T),
+                                                  iaccptperc = (totaliniaccpt/totalinitial)*100, 
+                                                  idenperc = (totaliniden/totalinitial)*100)
+ggplot(initialbyyear, aes(x=Fiscal.Year, y=iaccptperc)) + 
+    geom_line(aes(color=Fiscal.Year, group=Fiscal.Year), size = 1) +   # create the line by nacis code
+    ggtitle("Line Plot of Initial Approvals Percentage by Year")+
+    geom_point(aes(color=Fiscal.Year), size=3) + 
+    xlab("Year")+ ylab("Percentage(%)") + 
+    ggsave("iaccptpercline.png", width=12, height=9)
+
+initialbyyear <- h1b %>% group_by(Fiscal.Year) %>% summarize( totaliniaccpt = sum(Initial.Approvals, na.rm = T),
+                                                  totaliniden = sum(Initial.Denials, na.rm = T),
+                                                  totalinitial = sum(Initial.Approvals,na.rm = T)+sum(Initial.Denials,na.rm = T),
+                                                  iaccptperc = (totaliniaccpt/totalinitial)*100, 
+                                                  idenperc = (totaliniden/totalinitial)*100)
+ggplot(initialbyyear, aes(x=Fiscal.Year, y=idenperc)) + 
+    geom_line(aes(color=Fiscal.Year, group=Fiscal.Year), size = 1) +   # create the line by nacis code
+    ggtitle("Line Plot of Initial Denials Percentage by Year")+
+    geom_point(aes(color=Fiscal.Year), size=3) + 
+    xlab("Year")+ ylab("Percentage(%)") + 
+    ggsave("idenpercline.png", width=12, height=9)
+```
+
+```{r cont_line_plot}
+library(directlabels)
+continuing <- h1b %>% group_by(Fiscal.Year) %>% summarize( totalconaccpt = sum(Continuing.Approvals, na.rm = T),
+                                                  totalconden = sum(Continuing.Denials, na.rm = T),
+                                                  totalcontinue = sum(Continuing.Approvals,na.rm = T)+sum(Continuing.Denials,na.rm = T),
+                                                  caccptperc = (totalconaccpt/totalcontinue) * 100,
+                                                  cdenperc = ( totalconden /totalcontinue) * 100 )
+ggplot(continuing, aes(x=Fiscal.Year, y=caccptperc)) + 
+    geom_line(aes(color=Fiscal.Year, group=Fiscal.Year), size = 1) +   # create the line by nacis code
+    ggtitle("Line Plot of Continuing Acceptance Percentage by Year")+
+    geom_point(aes(color=Fiscal.Year), size=3) + 
+    xlab("Year")+ ylab("Percentage(%)") + 
+    ggsave("conaccptercline.png", width=12, height=9)      
+
+continuing <- h1b %>% group_by(Fiscal.Year) %>% summarize( totalconaccpt = sum(Continuing.Approvals, na.rm = T),
+                                                  totalconden = sum(Continuing.Denials, na.rm = T),
+                                                  totalcontinue = sum(Continuing.Approvals,na.rm = T)+sum(Continuing.Denials,na.rm = T),
+                                                  caccptperc = (totalconaccpt/totalcontinue) * 100,
+                                                  cdenperc = ( totalconden /totalcontinue) * 100 )
+ggplot(continuing, aes(x=Fiscal.Year, y=cdenperc)) + 
+    geom_line(aes(color=Fiscal.Year, group=Fiscal.Year), size = 1) +   # create the line by nacis code
+    ggtitle("Line Plot of Continuing Denial Percentage by Year")+
+    geom_point(aes(color=Fiscal.Year), size=3) + 
+    xlab("Year")+ ylab("Percentage(%)") + 
+    ggsave("condenline.png", width=12, height=9)    
+```
+
+# Sources
+https://nfap.com/wp-content/uploads/2019/04/H-1B-Denial-Rates-Past-and-Present.NFAP-Policy-Brief.April-2019.pdf
+https://economictimes.indiatimes.com/nri/visa-and-immigration/10-per-cent-drop-in-h1b-visa-approvals-in-2018-us-authorities/articleshow/69659107.cms
+https://www.forbes.com/sites/stuartanderson/2019/04/10/new-data-show-h-1b-denial-rates-reaching-highest-levels/#38e210e2797f
