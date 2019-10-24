@@ -1,0 +1,547 @@
+---
+title: "H-1B Visa"
+author: "Spencer Stucky, Cheng Zeng, Wenyu Zeng, Chao Zhou"
+date: "10/14/2019"
+output:
+  html_document:
+    toc: yes
+    toc_depth: 4
+    fig.align: "center"
+    toc_float: yes
+    theme: readable
+  pdf_document:
+    toc: yes
+    toc_depth: '4'
+---
+
+```{r, include = F}
+library(dplyr)
+library(maps)
+library(tidyr)
+h1b <- read.csv('h1b_datahubexport_2009-2019.csv')
+#h1b <- h1b[h1b$State %in%state.abb,]
+```
+How have U.S. H1b visa acceptances and denials changed over the course of 2015-2019?1a) How does industry effect H1b visas from the time spanning 2015-2019?
+
+# Chapter 1: Introduction
+
+H-1B visa is a type of non-immigrate visa of United States that under the Immigration and Nationality Act since 1952. This visa allows foreign workers (individual) to enter United Stated to temporarily be employed by U.S. employers in specialty occupations. (Path2usa) With the development of the world, more and more people are looking for opportunities in U.S. Therefore, the number of applications for H-1B are rising every year. Each year, the total number of H-1B petitions that U.S. congress allowed to approve for a fiscal year is 65,000 for regular cap and 20,000 master’s exemption. (USCIS) According to the summary of USCIS H-1B 2019, there are more than 190,000 applications were submitted and 94,213 for regular quota and 95,885 for master quota. (USCIS) However, after Donald Trump become president, he signed the "Buy American, Hire American" executive order in April 2017. (USCIS) Though, this order helps U.S. employers hire most-skills foreign employees, the approval of this visa became harder and harder.
+
+Nonetheless, politics is not the only factor that affects H-1B’s approval rate, but industries and location are also impact it. In this report, we will focus on the relationship in _______fill in the blank_______________________________________.
+
+# Chapter 2: Description of Data
+
+The source data 
+```{r, echo=FALSE}
+str(h1b)
+```
+xxxxxxx
+
+```{r,include=F}
+#nas <- na.omit(h1b$State)
+#nas
+new <- h1b %>% drop_na(State) %>% group_by(State) %>%
+  summarise(totalinitialapp = sum(Initial.Approvals, na.rm = T),
+            totalinitialden = sum(Initial.Denials, na.rm = T),
+            totalcontapp = sum(Continuing.Approvals, na.rm = T),
+            totalcontden = sum(Continuing.Denials, na.rm = T),
+            totalinitial = sum((totalinitialapp + totalinitialden), na.rm = T),
+            totalcontinue = sum((totalcontapp+totalcontden), na.rm = T),
+            percentiniapp = ((totalinitialapp/totalinitial) * 100),
+            percentiniden = (totalinitialden/totalinitial) * 100,
+            percentcontapp = (totalcontapp/totalcontinue) *100,
+            percentcontden = (totalcontden/totalcontinue) * 100
+            )
+test <- h1b %>% drop_na(State) %>% group_by(State) %>%
+  summarise(totalinitialapp = sum(Initial.Approvals, na.rm = T))
+head(new)
+```
+
+```{r, include=F}
+library(ggplot2)
+library(maps)
+library(usmap)
+library(openintro)
+library(tidyverse)
+```
+
+## Chapter 3 States and H1B Visa Status
+### 3.1 SMART Question
+From the tests, we know that US states and H1B visa status are dependent to each other. We are interested to see which states has the most approval/denial rate.
+
+```{r, include=F}
+usstate <- map_data("state")
+copy <- map_data("state")
+colnames(usstate)[colnames(usstate)=="region"] <- "State_name"
+usstate <- usstate %>% mutate(State = state2abbr(State_name))
+new$State <- as.character(new$State)
+state_lo <- inner_join(usstate, new, by = "State")
+state_lo <- state_lo[state_lo$State %in%state.abb,]
+head(state_lo)
+```
+
+```{r,include=F}
+state_approval <- state_lo %>% select(long, lat, group, order, State, totalinitialapp, percentiniapp, State_name)
+head(state_approval)
+```
+
+```{r, echo=F}
+state_den <- state_lo %>% select(long, lat, group, order, State, totalinitialden, percentiniden, State_name)
+state_contapp <- state_lo %>% select(long, lat, group, order, State, totalcontapp, percentcontapp, State_name)
+state_contden <- state_lo %>% select(long, lat, group, order, State, totalcontden, percentcontden, State_name)
+```
+
+
+```{r, echo=F}
+us_base <- ggplot(data = state_approval, mapping = aes(x = long, y = lat, group = group)) +
+  coord_fixed(1.3) +
+  geom_polygon(color = "black", fill = "gray")
+#us_base + theme_nothing()
+# base <- plot_usmap(regions = "states", data = state_approval, values = NULL, include = NULL, exclude = NULL) +
+#   coord_fixed(1.3) +
+#   geom_polygon(color = "black", fill = "gray")
+ditch_the_axes <- theme(
+  axis.text = element_blank(),
+  axis.line = element_blank(),
+  axis.ticks = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  axis.title = element_blank()
+  )
+elbow_rooml <- us_base + geom_polygon(data = state_approval, aes(fill = totalinitialapp), color = "white") +
+  geom_polygon(color = "black", fill = NA) +
+  theme_bw() +
+  ditch_the_axes
+```
+
+### 3.2 Map of initial approval
+Here we can see two maps that show the intial approvals with each state, the first graph
+```{r, echo=F}
+#elbow_rooml 
+elbow_roomll <- us_base + geom_polygon(data = state_approval, aes(fill = percentiniapp), color = "white") +
+  geom_polygon(color = "black", fill = NA) +
+  theme_bw() +
+  ditch_the_axes
+eb2 <- elbow_rooml + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), breaks = c(min(state_approval$totalinitialapp),1000, 6000, median(state_approval$totalinitialapp), 100000, max(state_approval$totalinitialapp)), trans = "log10", name = "Numbers of Initial Approval") + labs(title = "Map of Numbers of Initial Approvals in Each State")
+eb2 
+eb1 <- elbow_roomll + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), name = "Percentage of Initial Approvals", breaks = c(96, 92, 88, 84, min(state_approval$percentiniapp))) + ggtitle("Map of Percentage of Initial Approvals in Each State")
+eb1 
+eb2 + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45))
+eb1 + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45))
+```
+
+### 3.3 Map of initial denial
+```{r, echo=F}
+elbow_room2 <- us_base + geom_polygon(data = state_den, aes(fill = totalinitialden), color = "white") +
+  geom_polygon(color = "black", fill = NA) +
+  theme_bw() +
+  ditch_the_axes
+eb3 <- elbow_room2 + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), breaks = c(min(state_den$totalinitialden),1000, 6000, median(state_den$totalinitialden), 100000, max(state_den$totalinitialden)), trans = "log10", name = "Number of Initial Denial") + labs(title = "Map of Numbers of Initial Denials in Each State")
+eb3
+elbow_room2l <- us_base + geom_polygon(data = state_den, aes(fill = percentiniden), color = "white") +
+  geom_polygon(color = "black", fill = NA) +
+  theme_bw() +
+  ditch_the_axes
+a <- c(4, 8, 12, 16, 19)
+eb3l <- elbow_room2l + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), breaks = a, name = "Percentage of Initial Denial") + labs(title = "Map of Percentage of Initial Denials in Each State")
+eb3l
+eb3 + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45))
+eb3l + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45))
+```
+
+### 3.4 Map of continue approval
+```{r, echo=F}
+elbow_room3 <- us_base + geom_polygon(data = state_contapp, aes(fill = totalcontapp), color = "white") +
+  geom_polygon(color = "black", fill = NA) +
+  theme_bw() +
+  ditch_the_axes
+eb4 <- elbow_room3 + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), breaks = c(min(state_contapp$totalcontapp),1000, 6000, median(state_contapp$totalcontapp), 100000, max(state_contapp$totalcontapp)), trans = "log10", name = "Numbers of Continue Approval") +
+  labs(title = "Map of Numbers of Continue Approvals in Each State") 
+eb4
+elbow_room3l <- us_base + geom_polygon(data = state_contapp, aes(fill = percentcontapp), color = "white") +
+  geom_polygon(color = "black", fill = NA) +
+  theme_bw() +
+  ditch_the_axes
+eb4l <- elbow_room3l + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), name = "Percentage of Continue Approval") +
+  labs(title = "Map of Percentage of Continue Approvals in Each State") 
+eb4l
+eb4 + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45))
+eb4l + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45))
+```
+
+### 3.5 Map of continue denial
+```{r, echo=F}
+elbow_room4 <- us_base + geom_polygon(data = state_contden, aes(fill = totalcontden), color = "white") +
+  geom_polygon(color = "black", fill = NA) +
+  theme_bw() +
+  ditch_the_axes
+eb5 <- elbow_room4 + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), breaks = c(min(state_contden$totalcontden),1000, 6000, median(state_contden$totalcontden), 100000, max(state_contden$totalcontden)), trans = "log10", name = "Numbers of continue denial") + labs(title = "Map of Numbers of Continue Denials in Each State")
+eb5
+elbow_room4l <- us_base + geom_polygon(data = state_contden, aes(fill = percentcontden), color = "white") +
+  geom_polygon(color = "black", fill = NA) +
+  theme_bw() +
+  ditch_the_axes
+eb5l <- elbow_room4l + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), name = "Percentage of continue denial", breaks = c(2, 3, 4, 5, 6, 7, 7.78)) + labs(title = "Map of Percentage of Continue Denials in Each State")
+eb5l
+eb5 + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45))
+eb5l + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45))
+```
+
+#### relations
+```{r, include=F}
+try1 <- table(h1b$State, h1b$Fiscal.Year)
+chisq.test(try1)
+# try2<- table(new$State, new$percenti)
+# chisq.test(try2)
+summary(h1b)
+str(state_lo)
+```
+
+```{r, include=F}
+prop.test(500000, 1111111, p=0.5)
+try3 <- aov(h1b$Initial.Approvals ~ h1b$State, na.rm = T)
+summary(try3)
+```
+
+```{r}
+m1 <- new %>% group_by(State) %>% arrange(desc(percentiniapp)) %>% head()
+m2 <- new %>% group_by(State) %>% arrange(desc(totalinitialapp)) %>% head()
+m1
+m2
+```
+
+```{r}
+m3 <- new %>% group_by(State) %>% arrange(desc(totalcontapp)) %>% head(n = 10)
+m3
+m4 <- new %>% group_by(State) %>% arrange(desc(percentcontapp)) %>% head(n =10)
+m4
+```
+
+
+
+
+
+
+
+
+# Chapter 4: Industries Factor
+
+## 4.1: Industries vs NAICS 
+
+In this Chapter, we are seaching for the relationship between industries and NAICS.
+
+### 4.1.1: S.M.A.R.T Question
+
+**Does industry relates to H-1B initial or continuing approval and denial rate between 2009-2019?**
+
+### 4.2.1: Initial Application
+
+```{r initial, echo=FALSE} 
+library(ggplot2)
+h1b$naics = as.factor(h1b$NAICS)
+# use group by to combine same industry together to calculate the total initial application amount.
+initial <- h1b %>% group_by(naics) %>% summarize( totaliniaccpt = sum(Initial.Approvals, na.rm = T), #shows total number of initail approvals
+                                                  totaliniden = sum(Initial.Denials, na.rm = T), # shows total number of initial denials
+                                                  totalinitial = sum(Initial.Approvals,na.rm = T)+sum(Initial.Denials,na.rm = T), # shows total number of initial application
+                                                  iaccptperc = (totaliniaccpt/totalinitial)*100, # percentage of initial approval rate
+                                                  idenperc = (totaliniden/totalinitial)*100) #percentage of initial denial rate
+# 
+# ggplot(initial, aes(x = naics, y = iaccptperc, color = naics, fill = naics)) + # percentage of initial approvals rate and color by industry code
+#   geom_bar(stat ="identity") +
+#   xlab("NAICS CODE") +
+#   ylab("Total Initial Approvals Percentage")
+# 
+# ggsave("Total Initial Approvals Percentage.png", width=12, height=9)
+
+ggplot(initial, aes(x = naics, y = idenperc, color = naics,  fill = naics)) + # percentage of initial denials rate and color by industry code
+  geom_bar(stat ="identity") + 
+  xlab("NAICS CODE") + 
+  ylab("Total Initial Denials Percentage") 
+
+#ggsave("Total Denial Approvals Percentage.png", width=12, height=9)
+
+
+```
+
+21(Mining): highest approval rate and lowest denial rate. 
+https://www.thermofisher.com/blog/mining/mining-industry-employees-are-in-demand/
+https://www.smenet.org/SME/media/Government/201201_EmergingWorkforceTrendsinUSMiningIndustry.pdf
+
+There is a fair amount of information available on degreed mining-related programs in the U.S. and globally. The information on community colleges, trade schools, apprentice programs and other mining training and education programs is spotty at best. Information on unskilled labor at mines was also lacking though, from conversations with recruiters and personal experience, there are few if any mining jobs that do not require training. What follows focuses on the degreed programs in mining. Will there be enough degreed and skilled labor to meet the current and anticipated demand? The answer to this question is unclear because current demand is not known. Discussions with recruiters that specialize in the mining industry indicate that, generally speaking, there is currently not enough skilled labor to meet the demand although demand varies depending on location and position. There are however, numerous current news articles (U.S. and foreign) that suggest there is a mine labor shortage.
+
+Within this world framework, U.S. mining finds itself with a predominantly senior workforce and an expanding need for labor to meet the increasing resource demand. As a result, the U.S. may, in the short term, be challenged to process its mineral resources and would therefore be strategically exposed due to its dependence on foreign raw materials. 
+
+72(Accommodation and Food Services): lowest approval rate and highest denial rate
+
+need a lot of worker but most of accommodation and food services is small business. which doesn't fullfill the requirment of H1B. Also, especially for hospitality industry, has seasonal impact. they are more looking for H2B (Temporary Non-agricultural Worker). Therefore, the denial rate is really high.
+
+https://www.h1b.biz/hospitality-and-immigration-law-visas-for-chefs-cooks-and-other.html
+
+https://www.chicagotribune.com/business/ct-hospitality-needs-more-immigrants-report-0825-biz-20170824-story.html
+
+### 4.2.2: Continuing Application
+```{r continuing, echo=FALSE}
+# use group by to combine same industry together to calculate the total continuing application amount.
+continuing <- h1b %>% group_by(naics) %>% summarize( totalconaccpt = sum(Continuing.Approvals, na.rm = T),
+                                                  totalconden = sum(Continuing.Denials, na.rm = T),
+                                                  totalcontinue = sum(Continuing.Approvals,na.rm = T)+sum(Continuing.Denials,na.rm = T),
+                                                  caccptperc = (totalconaccpt/totalcontinue) * 100,
+                                                  cdenperc = ( totalconden /totalcontinue) * 100 )
+# ggplot(continuing, aes(x = naics, y = caccptperc, color = naics, fill = naics)) + geom_bar(stat ="identity") + xlab("NAICS CODE") + ylab("Total Continuing Approvals Percentage")
+# ggsave("Total Continuing Approvals Percentage.png", width=12, height=9)
+
+ggplot(continuing, aes(x = naics, y = cdenperc, color = naics, fill = naics)) + geom_bar(stat ="identity") + xlab("NAICS CODE") + ylab("Total Continuing Denials Percentage")
+
+#ggsave("Total Continuing DenialsPercentage.png", width=12, height=9)
+```
+99: This major group includes establishments which cannot be classified in any other industry. Establishments which can be classified in a division should be classified in the most appropriate industry within that division.
+99(Nonclassifiable Establishments): lowest appoval rate and highest denial rate
+55(Management of Companies and Enterprises): highest approval rate and lowest denial rate. Financial & Banking.
+
+Some bank departments are now focusing their hiring on workers who don’t need permits, though they continue to use the visas for positions such as engineers and quantitative analysts that are hard to fill with US workers.
+
+Eight major investment banks increased their H-1B applications for high-skilled workers by almost 60% over five years to more than 7,000 in fiscal year 2017, according to a Bloomberg analysis of visa filing data.
+
+The banks, including JPMorgan Chase & Co. and Goldman Sachs Group Inc., increasingly have been using a similar approach to hiring as tech companies, which rely most heavily on the visas. To hire foreign workers under the program, companies compete in a government lottery for a share of the 85,000 permits available annually.
+
+## 4.3: Industries vs NAICS by Year
+
+### 4.3.1: Initial Application
+
+```{r fig.width=12, fig.height=9,initialwithyear, echo=F}
+#install.packages("directlabels")
+library(directlabels)
+
+initialbyyear <- h1b %>% group_by(Fiscal.Year, naics) %>% summarize( totaliniaccpt = sum(Initial.Approvals, na.rm = T),
+                                                  totaliniden = sum(Initial.Denials, na.rm = T),
+                                                  totalinitial = sum(Initial.Approvals,na.rm = T)+sum(Initial.Denials,na.rm = T),
+                                                  iaccptperc = (totaliniaccpt/totalinitial)*100, 
+                                                  idenperc = (totaliniden/totalinitial)*100)
+
+
+ggplot(initialbyyear, aes(x=Fiscal.Year, y=iaccptperc)) + 
+    geom_line(aes(color=naics, group=naics), size = 1) +   # create the line by nacis code
+    ggtitle("Line Plot of Industry and  Initial Approvals Percentage by Year")+
+    geom_point(aes(color=naics), size=3) +  # for visualization purpose, we set up the point for each year so people can directly see the rate change of industry by year 
+    theme(plot.title = element_text(hjust = 0.5)) +  # since we change the size of the figer, we need to relocate the fig name to center
+    xlab("Year")+ ylab("Percentage(%)")+  # rename x and y axis names
+    geom_dl(aes(label = naics, color = naics), method = list(dl.combine("first.polygons", "last.polygons"), cex = 1))+  #set up label for each line
+    scale_x_continuous(breaks=seq(2009, 2019, 1))+   # changing the scale for both x and y axis
+    scale_y_continuous(breaks=seq(50, 100, 5)) 
+
+#ggsave("iaccptperc.png", width=12, height=9)
+
+#write.csv(initialbyyear, file = "initialbyyear.csv")
+
+# ggplot(initialbyyear, aes(x=Fiscal.Year, y=idenperc)) + 
+#     geom_line(aes(color=naics, group=naics), size = 1) + 
+#     ggtitle("Line Plot of Industry and  Initial Denials Percentage by Year")+
+#     geom_point(aes(color=naics), size=3) +
+#     theme(plot.title = element_text(hjust = 0.5)) + 
+#     xlab("Year")+ ylab("Percentage(%)")+
+#     geom_dl(aes(label = naics, color = naics), method = list(dl.combine("first.polygons", "last.polygons"), cex = 1))+
+#     scale_x_continuous(breaks=seq(2009, 2019, 1))+
+#     scale_y_continuous(breaks=seq(50, 100, 5))
+# ggsave("idenperc.png", width=12, height=9)
+
+
+```
+54(	Professional, Scientific, and Technical Services) changed significant between 2009 to 2010 15.68. 
+https://fas.org/sgp/crs/misc/97-746.pdf
+https://www.bls.gov/opub/btn/volume-2/careers-in-growing-field-of-information-technology-services.htm
+
+54 is also changed significant between 2017 to 2018 which is 29.37%. 
+
+Since 2003, employment in the IT industry has grown by 37 percent. During the recent recession (December 2007 to June 2009), the industry lost only 1 percent of its workforce in 2009, but otherwise maintained employment. By 2010, employment had recovered and was higher than it had been in 2008.
+
+https://www.vox.com/2019/2/28/18241522/trump-h1b-tech-work-jobs-overseas
+https://insights.dice.com/2018/09/18/new-h-1b-rule-bad-large-tech-companies/
+
+
+
+
+### 4.3.2: Continuing Application
+
+```{r fig.width=12, fig.height=9, continuewithyear, echo = 0}
+#use group by to combine same industry together to calculate the total continuing application amount.
+continuingbyyear <- h1b %>% group_by(Fiscal.Year, naics) %>% summarize(totalconaccpt = sum(Continuing.Approvals, na.rm = T),
+                                                  totalconden = sum(Continuing.Denials, na.rm = T),
+                                                  totalcontinue = sum(Continuing.Approvals,na.rm = T)+sum(Continuing.Denials,na.rm = T),
+                                                  caccptperc = (totalconaccpt/totalcontinue) * 100,
+                                                  cdenperc = ( totalconden /totalcontinue) * 100 )
+
+
+ggplot(continuingbyyear, aes(x=Fiscal.Year, y=caccptperc)) + 
+    geom_line(aes(color=naics, group=naics), size = 1) + 
+    ggtitle("Line Plot of Industry and Continuing Approvals Percentage by Year")+
+    geom_point(aes(color=naics), size=3) +
+    theme(plot.title = element_text(hjust = 0.5)) + 
+    xlab("Year")+ ylab("Percentage(%)")+
+    geom_dl(aes(label = naics, color = naics), method = list(dl.combine("first.polygons", "last.polygons"), cex = 1))+
+    scale_x_continuous(breaks=seq(2009, 2019, 1))+
+    scale_y_continuous(breaks=seq(50, 100, 5))
+
+#ggsave("caccptperc.png", width=12, height=9)
+
+# ggplot(continuingbyyear, aes(x=Fiscal.Year, y=cdenperc)) + 
+#     geom_line(aes(color=naics, group=naics),size = 1) + 
+#     ggtitle("Line Plot of Industry and Continuing Denials Percentage by Year")+
+#     geom_point(aes(color=naics), size=3) +
+#     theme(plot.title = element_text(hjust = 0.5)) + 
+#     xlab("Year")+ ylab("Percentage(%)")+
+#     geom_dl(aes(label = naics, color = naics), method = list(dl.combine("first.polygons", "last.polygons"), cex = 1))+
+#     scale_x_continuous(breaks=seq(2009, 2019, 1))+
+#     scale_y_continuous(breaks=seq(50, 100, 5))
+# 
+# ggsave("cdenperc.png", width=12, height=9)
+
+```
+11(Agriculture, Forestry, Fishing and Hunting) changed the most in 2018 which is 20.43, the second one is 54 (Professional, Scientific, and Technical Services).
+
+https://www.cfr.org/backgrounder/us-temporary-foreign-worker-programs
+https://www.cato.org/blog/immigration-application-denials-jump-37-percent-under-trump
+
+
+
+
+
+
+
+
+# Chapter 5: Year (& Policy) Factor
+```{r initial_bar,  echo=FALSE}
+library("ggplot2")
+#h1b$Fiscal.Year = as.factor(h1b$Fiscal.Year)
+# use group by to combine same year together to calculate the total initial application amount.
+initial <- h1b %>% group_by(Fiscal.Year) %>% summarize( totaliniaccpt = sum(Initial.Approvals, na.rm = T), #shows total number of initail approvals
+                                                  totaliniden = sum(Initial.Denials, na.rm = T), # shows total number of initial denials
+                                                  totalinitial = sum(Initial.Approvals,na.rm = T)+sum(Initial.Denials,na.rm = T), # shows total number of initial application
+                                                  iaccptperc = (totaliniaccpt/totalinitial)*100, round(iaccptperc, digits = 2), # percentage of initial approval rate
+                                                  idenperc = (totaliniden/totalinitial)*100, round(idenperc, digits = 2)) #percentage of initial denial rate
+head(initial, n=12)
+str(initial)
+ggplot(initial, aes(x = Fiscal.Year, y = iaccptperc, color = Fiscal.Year, fill = Fiscal.Year)) + # percentage of initial approvals rate and color by industry code
+  geom_bar(stat ="identity") + 
+  xlab("Year") + 
+  ylab("Total Initial Approvals Percentage")+
+  ggtitle("Total Initial Approvals by Year")+
+ggsave("Total Initial Approvals Percentage.png", width=12, height=9)
+ggplot(initial, aes(x = Fiscal.Year, y = idenperc, color = Fiscal.Year, , fill = Fiscal.Year)) + # percentage of initial denials rate and color by industry code
+  geom_bar(stat ="identity") + 
+  xlab("Year") + 
+  ylab("Total Initial Denials Percentage")+
+  ggtitle("Total Initial Denials by Year")+
+ggsave("Total Denial Approvals Percentage.png", width=12, height=9)
+```
+
+```{r cont_bar, echo=FALSE}
+# use group by to combine same year together to calculate the total continuing application amount.
+continuing <- h1b %>% group_by(Fiscal.Year) %>% summarize( totalconaccpt = sum(Continuing.Approvals, na.rm = T),
+                                                  totalconden = sum(Continuing.Denials, na.rm = T),
+                                                  totalcontinue = sum(Continuing.Approvals,na.rm = T)+sum(Continuing.Denials,na.rm = T),
+                                                  caccptperc = (totalconaccpt/totalcontinue) * 100,
+                                                  cdenperc = ( totalconden /totalcontinue) * 100 )
+ggplot(continuing, aes(x = Fiscal.Year, y = caccptperc, color = Fiscal.Year, fill = Fiscal.Year)) + geom_bar(stat ="identity") + xlab("Year") + ylab("Total Continuing Approvals Percentage")+
+  ggtitle("Total Continuing Approvals by Year")+
+ggsave("Total Continuing Approvals Percentage.png", width=12, height=9)
+ggplot(continuing, aes(x = Fiscal.Year, y = cdenperc, color = Fiscal.Year, fill = Fiscal.Year)) + geom_bar(stat ="identity") + xlab("Year") + ylab("Total Continuing Denials Percentage")+
+  ggtitle("Total Continuing Denials by Year")+
+ggsave("Total Continuing DenialsPercentage.png", width=12, height=9)
+```
+
+```{r, ini_line_plot}
+#install.packages("directlabels")
+library(directlabels)
+#h1b$Fiscal.Year = as.numeric(h1b$Fiscal.Year)
+initialbyyear <- h1b %>% group_by(Fiscal.Year) %>% summarize( totaliniaccpt = sum(Initial.Approvals, na.rm = T),
+                                                  totaliniden = sum(Initial.Denials, na.rm = T),
+                                                  totalinitial = sum(Initial.Approvals,na.rm = T)+sum(Initial.Denials,na.rm = T),
+                                                  iaccptperc = (totaliniaccpt/totalinitial)*100, 
+                                                  idenperc = (totaliniden/totalinitial)*100)
+ggplot(initialbyyear, aes(x=Fiscal.Year, y=iaccptperc)) + 
+    geom_line(aes(color=Fiscal.Year, group=Fiscal.Year), size = 1) +   # create the line by nacis code
+    ggtitle("Line Plot of Initial Approvals Percentage by Year")+
+    geom_point(aes(color=Fiscal.Year), size=3) + 
+    xlab("Year")+ ylab("Percentage(%)") + 
+    ggsave("iaccptpercline.png", width=12, height=9)
+initialbyyear <- h1b %>% group_by(Fiscal.Year) %>% summarize( totaliniaccpt = sum(Initial.Approvals, na.rm = T),
+                                                  totaliniden = sum(Initial.Denials, na.rm = T),
+                                                  totalinitial = sum(Initial.Approvals,na.rm = T)+sum(Initial.Denials,na.rm = T),
+                                                  iaccptperc = (totaliniaccpt/totalinitial)*100, 
+                                                  idenperc = (totaliniden/totalinitial)*100)
+ggplot(initialbyyear, aes(x=Fiscal.Year, y=idenperc)) + 
+    geom_line(aes(color=Fiscal.Year, group=Fiscal.Year), size = 1) +   # create the line by nacis code
+    ggtitle("Line Plot of Initial Denials Percentage by Year")+
+    geom_point(aes(color=Fiscal.Year), size=3) + 
+    xlab("Year")+ ylab("Percentage(%)") + 
+    ggsave("idenpercline.png", width=12, height=9)
+```
+
+```{r cont_line_plot}
+library(directlabels)
+continuing <- h1b %>% group_by(Fiscal.Year) %>% summarize( totalconaccpt = sum(Continuing.Approvals, na.rm = T),
+                                                  totalconden = sum(Continuing.Denials, na.rm = T),
+                                                  totalcontinue = sum(Continuing.Approvals,na.rm = T)+sum(Continuing.Denials,na.rm = T),
+                                                  caccptperc = (totalconaccpt/totalcontinue) * 100,
+                                                  cdenperc = ( totalconden /totalcontinue) * 100 )
+ggplot(continuing, aes(x=Fiscal.Year, y=caccptperc)) + 
+    geom_line(aes(color=Fiscal.Year, group=Fiscal.Year), size = 1) +   # create the line by nacis code
+    ggtitle("Line Plot of Continuing Acceptance Percentage by Year")+
+    geom_point(aes(color=Fiscal.Year), size=3) + 
+    xlab("Year")+ ylab("Percentage(%)") + 
+    ggsave("conaccptercline.png", width=12, height=9)      
+continuing <- h1b %>% group_by(Fiscal.Year) %>% summarize( totalconaccpt = sum(Continuing.Approvals, na.rm = T),
+                                                  totalconden = sum(Continuing.Denials, na.rm = T),
+                                                  totalcontinue = sum(Continuing.Approvals,na.rm = T)+sum(Continuing.Denials,na.rm = T),
+                                                  caccptperc = (totalconaccpt/totalcontinue) * 100,
+                                                  cdenperc = ( totalconden /totalcontinue) * 100 )
+ggplot(continuing, aes(x=Fiscal.Year, y=cdenperc)) + 
+    geom_line(aes(color=Fiscal.Year, group=Fiscal.Year), size = 1) +   # create the line by nacis code
+    ggtitle("Line Plot of Continuing Denial Percentage by Year")+
+    geom_point(aes(color=Fiscal.Year), size=3) + 
+    xlab("Year")+ ylab("Percentage(%)") + 
+    ggsave("condenline.png", width=12, height=9)    
+```
+
+# Sources
+https://nfap.com/wp-content/uploads/2019/04/H-1B-Denial-Rates-Past-and-Present.NFAP-Policy-Brief.April-2019.pdf
+https://economictimes.indiatimes.com/nri/visa-and-immigration/10-per-cent-drop-in-h1b-visa-approvals-in-2018-us-authorities/articleshow/69659107.cms
+https://www.forbes.com/sites/stuartanderson/2019/04/10/new-data-show-h-1b-denial-rates-reaching-highest-levels/#38e210e2797f
+
+## 5.1: Industries vs NAICS 
+
+
+
+### 5.1.1: S.M.A.R.T Question
+
+
+
+
+
+
+
+# Chapter 6: Conculsion 
+
+
+no idea~~~~~~
+
+
+
+
+# Citation
+
+What is H1B Visa? (n.d.). Retrieved October 14, 2019, from https://www.path2usa.com/what-is-h1b-visa.
+
+USCIS Reaches FY 2019 H-1B Cap. (2018, April 6). Retrieved October 14, 2019, from https://www.uscis.gov/news/alerts/uscis-reaches-fy-2019-h-1b-cap.
+
+Buy American and Hire American. (2019, April 26). Retrieved October 14, 2019, from https://www.uscis.gov/legal-resources/buy-american-hire-american-putting-american-workers-first.
+
+Kumar. (2019, May 26). H1B Historical Data – Lottery vs 85K Quota, Masters vs Regular Split. Retrieved October 22, 2019, from https://redbus2us.com/h1b-historical-data-lottery-vs-85k-quota-masters-vs-regular-split/.
+
+Search NAICS Codes by Industry. (n.d.). Retrieved October 15, 2019, from https://www.naics.com/search-naics-codes-by-industry/.
+
+SIC Major Group: 99 Nonclassifiable Establishments. (n.d.). Retrieved October 21, 2019, from https://www.naics.com/standard-industrial-code-divisions/?code=99.
+
+Zaveri, P., & Roy, A. (2019, April 2). Changes to H-1B visa lottery create 'stress' for tech companies and employees. Retrieved October 22, 2019, from https://www.cnbc.com/2019/04/01/h1-b-lottery-changes-in-2018-masters-candidates-more-inspections.html.
+
+Yang, Y. (2018, February 22). Big Banks in U.S. Forced to Reevaluate Hiring Foreign Workers. Retrieved October 23, 2019, from https://www.bloomberg.com/news/articles/2018-02-22/big-banks-in-u-s-forced-to-reevaluate-hiring-foreign-workers.
