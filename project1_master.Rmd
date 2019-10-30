@@ -123,7 +123,7 @@ library(openintro)
 library(tidyverse)
 ```
 
-## Chapter 3 States and H1B Visa Status
+# Chapter 3 States and H1B Visa Status
 ### 3.1 SMART Question
 From the tests, we know that US states and H1B visa status are dependent to each other. We are interested to see which states has the most approval/denial rate.
 
@@ -284,6 +284,8 @@ m4
 
 # Chapter 4: Industries Factor
 
+In this Chapter, we are using data to search for the relationship between H-1B approval and denial rate with industry. Also, we compare the rate with industry by year because we attempt to understand whether the year associates with the rate and industry.  
+
 ## 4.1: Industries vs NAICS 
 
 In this Chapter, we are seaching for the relationship between industries and NAICS.
@@ -292,7 +294,9 @@ In this Chapter, we are seaching for the relationship between industries and NAI
 
 **Does industry relates to H-1B initial or continuing approval and denial rate between 2009-2019?**
 
-### 4.2.1: Initial Application
+### 4.1.2: Initial Application
+
+To analyze the NAICS and denial rate, we used group by to combine the same industry. Ideally, we want to use the total denial amount to compare the difference in industries. Since the applicant amount of NAICS 54 (Professional, Scientific, and Technical Services) far exceed other industries, we decided to use percentage to present our data.
 
 ```{r initial, echo=FALSE} 
 library(ggplot2)
@@ -320,24 +324,12 @@ ggplot(initial, aes(x = naics, y = idenperc, color = naics,  fill = naics)) + # 
 
 
 ```
+From the total initial denial’s percentage, we can see the lowest percentage is 21 – Mining industry, which is only 2.87%; in other word, mining industry has the overall highest initial approval rate. According to NAICS association website that mining includes Oil and Gas Extraction, Coal Mining, Metal Ore Mining and Nonmetallic Mineral Mining and Quarrying. Sue Kihn indicated in his article that mining companies are increasing their budgets on recruiting activities. She believes that seasoned miners are in limited supply after many quit from this industry in leaner times. (Kihn) Even though worldwide has good number of mining-related programs, the industry still requires well-train labor nowadays. Therefore, USCIS is willing to give the H-1B visa to foreign labor so they can help to develop U.S mining industry. (Brandon)
 
-21(Mining): highest approval rate and lowest denial rate. 
-https://www.thermofisher.com/blog/mining/mining-industry-employees-are-in-demand/
-https://www.smenet.org/SME/media/Government/201201_EmergingWorkforceTrendsinUSMiningIndustry.pdf
+ Nonetheless, 72, Accommodation and Food Services, has the highest initial denial percentage which is 28.19%. Based on NAICS association, hospitality, traveler accommodation, special food services and restaurants are all included. Since most of the companies depends on the season or holiday; thus, majority of these companies only need temporary workers. USCIS provide another type of visa, H-2B, for those temporary non-agricultural workers. In additional, there are many companies are small business, which cannot fulfill the requirement of H-1B, especially after the new policy came out, the application check is harsher. It causes the initial denial rate of Accommodation and Food Services really high. 
 
-There is a fair amount of information available on degreed mining-related programs in the U.S. and globally. The information on community colleges, trade schools, apprentice programs and other mining training and education programs is spotty at best. Information on unskilled labor at mines was also lacking though, from conversations with recruiters and personal experience, there are few if any mining jobs that do not require training. What follows focuses on the degreed programs in mining. Will there be enough degreed and skilled labor to meet the current and anticipated demand? The answer to this question is unclear because current demand is not known. Discussions with recruiters that specialize in the mining industry indicate that, generally speaking, there is currently not enough skilled labor to meet the demand although demand varies depending on location and position. There are however, numerous current news articles (U.S. and foreign) that suggest there is a mine labor shortage.
 
-Within this world framework, U.S. mining finds itself with a predominantly senior workforce and an expanding need for labor to meet the increasing resource demand. As a result, the U.S. may, in the short term, be challenged to process its mineral resources and would therefore be strategically exposed due to its dependence on foreign raw materials. 
-
-72(Accommodation and Food Services): lowest approval rate and highest denial rate
-
-need a lot of worker but most of accommodation and food services is small business. which doesn't fullfill the requirment of H1B. Also, especially for hospitality industry, has seasonal impact. they are more looking for H2B (Temporary Non-agricultural Worker). Therefore, the denial rate is really high.
-
-https://www.h1b.biz/hospitality-and-immigration-law-visas-for-chefs-cooks-and-other.html
-
-https://www.chicagotribune.com/business/ct-hospitality-needs-more-immigrants-report-0825-biz-20170824-story.html
-
-### 4.2.2: Continuing Application
+### 4.1.3: Continuing Application
 ```{r continuing, echo=FALSE}
 # use group by to combine same industry together to calculate the total continuing application amount.
 continuing <- h1b %>% group_by(naics) %>% summarize( totalconaccpt = sum(Continuing.Approvals, na.rm = T),
@@ -352,19 +344,13 @@ ggplot(continuing, aes(x = naics, y = cdenperc, color = naics, fill = naics)) + 
 
 #ggsave("Total Continuing DenialsPercentage.png", width=12, height=9)
 ```
-99: This major group includes establishments which cannot be classified in any other industry. Establishments which can be classified in a division should be classified in the most appropriate industry within that division.
-99(Nonclassifiable Establishments): lowest appoval rate and highest denial rate
-55(Management of Companies and Enterprises): highest approval rate and lowest denial rate. Financial & Banking.
 
-Some bank departments are now focusing their hiring on workers who don’t need permits, though they continue to use the visas for positions such as engineers and quantitative analysts that are hard to fill with US workers.
+In the above graph, industry code 99 has the highest continual denials percentage. However, 99 is nonclassifiable establishments which means the industry is unknown. Since the purpose of this section for industry and H1B approval or denial rate, we will not analysis this industry code. 
+ Next, we can see the industry 55, Management of Companies and Enterprises, has the lowest continuing denials percentage which is 1.61%. This industry includes Banking, Security and financial companies. Eight major investment banks (such as Bank of American, JPMorgan Chase & Co. and Goldman Sachs Group Inc.) are using the similar way to hire the high-skill employee as tech companies; hence, they increased their H-1B applications for high-skilled workers by almost 60% over five years to more than 7,000 in fiscal year 2017, according to a Bloomberg analysis of visa filing data. (Yang)
 
-Eight major investment banks increased their H-1B applications for high-skilled workers by almost 60% over five years to more than 7,000 in fiscal year 2017, according to a Bloomberg analysis of visa filing data.
+## 4.2: Industries vs NAICS by Year
 
-The banks, including JPMorgan Chase & Co. and Goldman Sachs Group Inc., increasingly have been using a similar approach to hiring as tech companies, which rely most heavily on the visas. To hire foreign workers under the program, companies compete in a government lottery for a share of the 85,000 permits available annually.
-
-## 4.3: Industries vs NAICS by Year
-
-### 4.3.1: Initial Application
+### 4.2.1: Initial Application
 
 ```{r fig.width=12, fig.height=9,initialwithyear, echo=F}
 #install.packages("directlabels")
@@ -404,21 +390,12 @@ ggplot(initialbyyear, aes(x=Fiscal.Year, y=iaccptperc)) +
 
 
 ```
-54(	Professional, Scientific, and Technical Services) changed significant between 2009 to 2010 15.68. 
-https://fas.org/sgp/crs/misc/97-746.pdf
-https://www.bls.gov/opub/btn/volume-2/careers-in-growing-field-of-information-technology-services.htm
 
-54 is also changed significant between 2017 to 2018 which is 29.37%. 
+As shown in the figure, NAICS 54, Professional, Scientific, and Technical Services, increase the initial approval percentage significantly between 2009 to 2010 by 15.68%. This is because the growing job opportunities in these field, especially for information technology services (IT). Regarding the article that Lauren Csorny publish on Bureau of Labor Statistics, employment rate in IT industry has grown by 37% since 2003. During the financial crisis, however, all industries were brain drain. After the recession and market recovery, employment of IT industry has restored and exceed compare to 2008. (Csorny)
 
-Since 2003, employment in the IT industry has grown by 37 percent. During the recent recession (December 2007 to June 2009), the industry lost only 1 percent of its workforce in 2009, but otherwise maintained employment. By 2010, employment had recovered and was higher than it had been in 2008.
+ Besides, the initial approval percentage of this industry drop significantly between 2017 to 2018 by 29.37%. The main reason is because of U.S new president, Donald Trump’s executive order, which makes H-1B tougher to get approved. This change directly affects tech companies because most of them rely on H-1B labors. Richard Burke, president and CEO of Envoy Global, conveyed that some companies are looking for labors in U.S, but they couldn’t find sufficient candidates. (Molla) Therefore, the figure shows us IT industry is not the only one got higher denial rate but others also get more denials on H-1B application. 
 
-https://www.vox.com/2019/2/28/18241522/trump-h1b-tech-work-jobs-overseas
-https://insights.dice.com/2018/09/18/new-h-1b-rule-bad-large-tech-companies/
-
-
-
-
-### 4.3.2: Continuing Application
+### 4.2.2: Continuing Application
 
 ```{r fig.width=12, fig.height=9, continuewithyear, echo = 0}
 #use group by to combine same industry together to calculate the total continuing application amount.
@@ -454,10 +431,8 @@ ggplot(continuingbyyear, aes(x=Fiscal.Year, y=caccptperc)) +
 # ggsave("cdenperc.png", width=12, height=9)
 
 ```
-11(Agriculture, Forestry, Fishing and Hunting) changed the most in 2018 which is 20.43, the second one is 54 (Professional, Scientific, and Technical Services).
 
-https://www.cfr.org/backgrounder/us-temporary-foreign-worker-programs
-https://www.cato.org/blog/immigration-application-denials-jump-37-percent-under-trump
+The H-1B continuing approval rate for NAICS 11, Agriculture, Forestry, Fishing and Hunting, drop 20.43% in 2018, which decreased the most compare to other industries. These is also due to the new H-1B policy. Since there are more and more paper work need to be submitted by applicants, and the reviewing process takes longer and longer, more agriculture companies shift the visa to H-2A, Temporary Agricultural Workers. 
 
 
 
@@ -588,16 +563,24 @@ To conclude, there are limited statistical test suitable for this dataset since 
 
 What is H1B Visa? (n.d.). Retrieved October 14, 2019, from https://www.path2usa.com/what-is-h1b-visa.
 
-USCIS Reaches FY 2019 H-1B Cap. (2018, April 6). Retrieved October 14, 2019, from https://www.uscis.gov/news/alerts/uscis-reaches-fy-2019-h-1b-cap.
+ USCIS Reaches FY 2019 H-1B Cap. (2018, April 6). Retrieved October 14, 2019, from https://www.uscis.gov/news/alerts/uscis-reaches-fy-2019-h-1b-cap.
 
-Buy American and Hire American. (2019, April 26). Retrieved October 14, 2019, from https://www.uscis.gov/legal-resources/buy-american-hire-american-putting-american-workers-first.
+ Buy American and Hire American. (2019, April 26). Retrieved October 14, 2019, from https://www.uscis.gov/legal-resources/buy-american-hire-american-putting-american-workers-first.
 
-Kumar. (2019, May 26). H1B Historical Data – Lottery vs 85K Quota, Masters vs Regular Split. Retrieved October 22, 2019, from https://redbus2us.com/h1b-historical-data-lottery-vs-85k-quota-masters-vs-regular-split/.
+ Kumar. (2019, May 26). H1B Historical Data – Lottery vs 85K Quota, Masters vs Regular Split. Retrieved October 22, 2019, from https://redbus2us.com/h1b-historical-data-lottery-vs-85k-quota-masters-vs-regular-split/.
 
-Search NAICS Codes by Industry. (n.d.). Retrieved October 15, 2019, from https://www.naics.com/search-naics-codes-by-industry/.
+ Search NAICS Codes by Industry. (n.d.). Retrieved October 15, 2019, from https://www.naics.com/search-naics-codes-by-industry/.
 
-SIC Major Group: 99 Nonclassifiable Establishments. (n.d.). Retrieved October 21, 2019, from https://www.naics.com/standard-industrial-code-divisions/?code=99.
+ SIC Major Group: 99 Nonclassifiable Establishments. (n.d.). Retrieved October 21, 2019, from https://www.naics.com/standard-industrial-code-divisions/?code=99.
 
-Zaveri, P., & Roy, A. (2019, April 2). Changes to H-1B visa lottery create 'stress' for tech companies and employees. Retrieved October 22, 2019, from https://www.cnbc.com/2019/04/01/h1-b-lottery-changes-in-2018-masters-candidates-more-inspections.html.
+ Zaveri, P., & Roy, A. (2019, April 2). Changes to H-1B visa lottery create 'stress' for tech companies and employees. Retrieved October 22, 2019, from https://www.cnbc.com/2019/04/01/h1-b-lottery-changes-in-2018-masters-candidates-more-inspections.html.
 
-Yang, Y. (2018, February 22). Big Banks in U.S. Forced to Reevaluate Hiring Foreign Workers. Retrieved October 23, 2019, from https://www.bloomberg.com/news/articles/2018-02-22/big-banks-in-u-s-forced-to-reevaluate-hiring-foreign-workers.
+ Yang, Y. (2018, February 22). Big Banks in U.S. Forced to Reevaluate Hiring Foreign Workers. Retrieved October 23, 2019, from https://www.bloomberg.com/news/articles/2018-02-22/big-banks-in-u-s-forced-to-reevaluate-hiring-foreign-workers.
+
+ Kihn, S. (2018, July 8). Demand for mining staff spans all levels and skills. Retrieved October 23, 2019, from http://www.mining.com/demand-mining-staff-spans-levels-skills/.
+
+ Brandon, C. N. (2012). Emerging Workforce Trends in the U.S. Mining Industry. Retrieved from https://www.smenet.org/SME/media/Government/201201_EmergingWorkforceTrendsinUSMiningIndustry.pdf
+
+ Csorny, L. (2013, April). Careers in the growing field of information technology services : Beyond the Numbers. Retrieved October 23, 2019, from https://www.bls.gov/opub/btn/volume-2/careers-in-growing-field-of-information-technology-services.htm.
+
+ Molla, R. (2019, February 28). Visa approvals for tech workers are on the decline. That won't just hurt Silicon Valley. Retrieved October 23, 2019, from https://www.vox.com/2019/2/28/18241522/trump-h1b-tech-work-jobs-overseas.
