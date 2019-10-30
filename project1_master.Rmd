@@ -28,10 +28,34 @@ How have U.S. H1b visa acceptances and denials changed over the course of 2015-2
 
 H-1B visa is a type of non-immigrate visa of United States that under the Immigration and Nationality Act since 1952. This visa allows foreign workers (individual) to enter United Stated to temporarily be employed by U.S. employers in specialty occupations. (Path2usa) With the development of the world, more and more people are looking for opportunities in U.S. Therefore, the number of applications for H-1B are rising every year. Each year, the total number of H-1B petitions that U.S. congress allowed to approve for a fiscal year is 65,000 for regular cap and 20,000 master’s exemption. (USCIS) According to the summary of USCIS H-1B 2019, there are more than 190,000 applications were submitted and 94,213 for regular quota and 95,885 for master quota. (USCIS) However, after Donald Trump become president, he signed the "Buy American, Hire American" executive order in April 2017. (USCIS) Though, this order helps U.S. employers hire most-skills foreign employees, the approval of this visa became harder and harder.
 
-Nonetheless, politics is not the only factor that affects H-1B’s approval rate, but industries and location are also impact it. In this report, we will focus on the relationship in _______fill in the blank_______________________________________.
+Nonetheless, politics is not the only factor that affects H-1B’s approval rate, but industries and location are also impacting it. In this report, we will explore how different industries, different loactions and different policies affect H-1B's approval rate. A explanation of where, how, why we get this dataset will be given at the beginning. Afterwards, the relationship between industries, locations, policies and approval rate is analysed seperately and the suitable statistical test has been chosen.
 
 # Chapter 2: Description of Data
-```{r chi, echo=F}
+
+The dataset is provided for adding a layer of transparency to the H-1B program by U.S. Citizenship and Immigration Services. It is stored as csv files that each file contains information for only one fiscal year. Each row in the dataset contains NAICS code, employer name, city, state, and ZIP code. To process the dataset as dataframe in R, all the origin csv files from USCIS are combined into one single file for data cleaning purpose. According to USCIS, “employers petitioning for temporary foreign workers in specialty occupations must have a certified Labor Condition Application from the Department of Labor and then must submit a Form I-129.” The dataset we used are being collected from these forms by USCIS. Since USCIS transfer these data from these paper forms into electronic system manually, data entry errors is inevitable. Data entry errors may occur in the following fields: employer name, tax ID, state, city, ZIP code. The data field in the dataset will be defined in the following list.
+
+```{r, echo=FALSE}
+str(h1b)
+```
+
+Fiscal Year: USCIS follows the U.S. Federal Government fiscal year calendar
+
+Employer Name: Petitioner’s employer name
+
+Initial Approval: H-1B petitions with “New employment” or “New concurrent employment” selected on Part 2, Question 2 of the Form I-129 whose first decision is an approval
+
+Initial Denial: H-1B petitions with “New employment” or “New concurrent employment” selected on Part 2, Question 2 of the Form I-129 whose first decision is a denial
+
+Continuing Approval: H-1B petitions with anything other than “New employment” or “New concurrent employment” selected on Part 2, Question 2 of the Form I-129, whose first decision is an approval. This includes, for example, continuing employment, change of employer, and amended petitions
+
+Continuing Denial: H-1B petitions with anything other than “New employment” or “New concurrent employment” selected on Part 2, Question 2 of the Form I-129 whose first decision is a denial. This includes, for example, continuing employment, change of employer, and amended petitions
+
+NAICS: North American Industry Classification System Code
+
+State, City and ZIP: Petitioner’s employer address in the U.S.
+
+
+```{r chi, echo=F, include=F}
 test <- h1b
 test$Fiscal.Year <- as.factor(test$Fiscal.Year)
 test$NAICS <- as.factor(test$NAICS)
@@ -70,12 +94,6 @@ res2 <- chisq.test(cont2)
 res2
 ```
 
-
- 
-```{r, echo=FALSE}
-str(h1b)
-```
-xxxxxxx
 
 ```{r,include=F}
 #nas <- na.omit(h1b$State)
@@ -562,9 +580,7 @@ https://www.forbes.com/sites/stuartanderson/2019/04/10/new-data-show-h-1b-denial
 
 # Chapter 6: Conculsion 
 
-
-no idea~~~~~~
-
+To conclude, there are limited statistical test suitable for this dataset since most of the variables are catogorical variables. The only test that describes the relationship between these variables are chi square test. Logistic model may also apply to the data. 
 
 
 
