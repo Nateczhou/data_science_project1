@@ -19,6 +19,7 @@ library(dplyr)
 library(maps)
 library(tidyr)
 library(reshape2)
+library(gridExtra)
 h1b <- read.csv('h1b_datahubexport_2009-2019.csv')
 #h1b <- h1b[h1b$State %in%state.abb,]
 ```
@@ -123,9 +124,13 @@ library(openintro)
 library(tidyverse)
 ```
 
-# Chapter 3 States and H1B Visa Status
+# Chapter 3 Location Factor
+
+From the tests, we know that US states and H1B visa status are dependent on each other, therefore, we are interested to find out how the states in the U.S. are related to the H1B visa status. We are using data for both numbers of initial/continue approvals/denials and percentages of initial/continue approvals/denials in every state, this is because we found out some states not only have high numbers of approvals, but also have high numbers of denials. Hence, we used percentages to make the results more accurate.
+
+
 ### 3.1 SMART Question
-From the tests, we know that US states and H1B visa status are dependent to each other. We are interested to see which states has the most approval/denial rate.
+**What is the relationship between the H1B visa approval and denial rates with the states in the U.S.?**
 
 ```{r, include=F}
 usstate <- map_data("state")
@@ -172,108 +177,146 @@ elbow_rooml <- us_base + geom_polygon(data = state_approval, aes(fill = totalini
   ditch_the_axes
 ```
 
-### 3.2 Map of initial approval
-Here we can see two maps that show the intial approvals with each state, the first graph
+### 3.2 Initial Approvals
+
+#### States VS. Numbers of Initial Approvals
 ```{r, echo=F}
+m1 <- new %>% group_by(State) %>% arrange(desc(percentiniapp)) %>% select(State, percentiniapp, totalinitialapp) %>% head()
+m2 <- new %>% group_by(State) %>% arrange(desc(totalinitialapp)) %>% select(State, totalinitialapp, percentiniapp) %>% head()
+m2
+```
+#### States VS. Percentage of Initial Approvals
+```{r,echo=F}
+m1
+```
+
+When we sorted the dataset, the top five states with high numbers of initial approvals are Idaho, Vermont, Washington, Rhode Island, and Tennessee. We can also see the percentage next to the initial approvals’ numbers, which shows that even though the five states have high numbers in approvals, they don’t have all high percentages.
+
+The top five states that have high percentages of initial approvals are California, New Jersey, Texas, New York, and Illinois. We can also notice that the numbers of initial approvals next to the percentage column are in a big difference. The big difference indicates that only ranking the states are not an efficient way to find out which state can give overall high initial approval rates when applying for the H1B visas. State “004” is an unknown state, so we don’t need to pay too much attention to it. Moreover, there aren’t any overlaps for the states, thus, plotting the data on a map will give us a more visual way to see which state is more significant in initial approval rates.
+
+#### **3.2.1 Map of Initial Approvals**
+```{r, echo=F, message=F}
 #elbow_rooml 
 elbow_roomll <- us_base + geom_polygon(data = state_approval, aes(fill = percentiniapp), color = "white") +
   geom_polygon(color = "black", fill = NA) +
   theme_bw() +
   ditch_the_axes
 eb2 <- elbow_rooml + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), breaks = c(min(state_approval$totalinitialapp),1000, 6000, median(state_approval$totalinitialapp), 100000, max(state_approval$totalinitialapp)), trans = "log10", name = "Numbers of Initial Approval") + labs(title = "Map of Numbers of Initial Approvals in Each State")
-eb2 
 eb1 <- elbow_roomll + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), name = "Percentage of Initial Approvals", breaks = c(96, 92, 88, 84, min(state_approval$percentiniapp))) + ggtitle("Map of Percentage of Initial Approvals in Each State")
-eb1 
-eb2 + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45))
-eb1 + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45))
+eb2a <- eb2 + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45)) + ggtitle(("East Side Zoomed In Version of Numbers of Initial Approvals in Each State"))
+eb1a <- eb1 + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45)) + ggtitle(("East Side Zoomed In Version of Percentage of Initial Approvals in Each State"))
+z <- grid.arrange(eb2, eb2a, ncol= 1)
+x <- grid.arrange(eb1, eb1a, ncol= 1)
+#eb2
+#eb2a
+#eb1
+#eb1a
 ```
 
-### 3.3 Map of initial denial
-```{r, echo=F}
+From the above graphs, we want to find the states that have both dense color in every graph. This will show the states have high value in both numbers of initial approvals and the percentage of initial approvals. By comparing the graphs, we find Washington, New York, and Maryland states have dense color, they all have at least 26,000 numbers of initial approvals and around 92% of initial approvals. Therefore, these three states might be better choices to apply for H1B Visas.
+
+### 3.3 Initial Denials
+
+#### **3.3.1 Maps of Initial Denials**
+```{r, echo=F, message=F}
 elbow_room2 <- us_base + geom_polygon(data = state_den, aes(fill = totalinitialden), color = "white") +
   geom_polygon(color = "black", fill = NA) +
   theme_bw() +
   ditch_the_axes
 eb3 <- elbow_room2 + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), breaks = c(min(state_den$totalinitialden),1000, 6000, median(state_den$totalinitialden), 100000, max(state_den$totalinitialden)), trans = "log10", name = "Number of Initial Denial") + labs(title = "Map of Numbers of Initial Denials in Each State")
-eb3
+#eb3
 elbow_room2l <- us_base + geom_polygon(data = state_den, aes(fill = percentiniden), color = "white") +
   geom_polygon(color = "black", fill = NA) +
   theme_bw() +
   ditch_the_axes
 a <- c(4, 8, 12, 16, 19)
 eb3l <- elbow_room2l + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), breaks = a, name = "Percentage of Initial Denial") + labs(title = "Map of Percentage of Initial Denials in Each State")
-eb3l
-eb3 + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45))
-eb3l + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45))
+#eb3l
+eb3a <- eb3 + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45)) + ggtitle(("East Side Zoomed In Version of Numbers of Initial Denials in Each State"))
+eb3la <- eb3l + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45)) + ggtitle(("East Side Zoomed In Version of Percentage of Initial Denials in Each State"))
+grid.arrange(eb3, eb3a, ncol = 1)
+grid.arrange(eb3l, eb3la, ncol = 1)
 ```
 
-### 3.4 Map of continue approval
+Since the values for initial denials are the conjugate of initial approvals, therefore, the rankings in the chart for lowest numbers of initial denials and lowest percentage of initial denials are the same with the charts for initial approvals.
+
+By graphing the initial denials, we can find out which state has high initial denial rates when it has dense color in both graphs. Therefore, we notice that Virginia, New Jersey, Georgia, and Florida have relatively high initial denials rate, since they all have at least 6000 numbers of initial denials and around 16% of initial denials.
+
+### 3.4 Continue Approvals
+#### States VS. Numbers of Continue Approvals
 ```{r, echo=F}
+m3 <- new %>% group_by(State) %>% arrange(desc(totalcontapp)) %>% head(n = 5) %>% select(State, totalcontapp, percentcontapp)
+m3
+m4 <- new %>% group_by(State) %>% arrange(desc(percentcontapp)) %>% head(n =9) %>% select(State, percentcontapp, totalcontapp)
+m5 <- new %>% group_by(State) %>% arrange(desc(percentcontapp)) %>% select(State, percentcontapp, totalcontapp) %>% filter(totalcontapp > 65000, percentcontapp > 95.00)
+#m5
+```
+
+#### States VS. Percentage of Continue Approvals
+```{r, echo=F}
+m4
+```
+
+From the tables, we notice that California, Texas, New Jersey, New York, and Illinois have high numbers of continue approvals, and they also have a relatively high percentage of continue approval. This might be due to the policy that continue approval exists if and only if the person has the initial approval for an H1B visa, therefore, the success rate for obtaining a continued approval for an H1B visa is higher than an initial approval.
+
+In the percentage chart, “AE, AP, FM” are U.S. military code, and the blank states are the provinces in Canada, therefore, we can ignore the top four rankings. Vermont, Washington, South Dakota, Mississippi, and Rhode Island are the top five states that have a high percentage rate in continue approvals. However, their numbers of continue approvals are in big difference as well, therefore, it’s better to plot them on a map to visualize them better.
+
+#### **3.4.1 Map of Continue Approvals**
+```{r, echo=F, message=F}
 elbow_room3 <- us_base + geom_polygon(data = state_contapp, aes(fill = totalcontapp), color = "white") +
   geom_polygon(color = "black", fill = NA) +
   theme_bw() +
   ditch_the_axes
 eb4 <- elbow_room3 + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), breaks = c(min(state_contapp$totalcontapp),1000, 6000, median(state_contapp$totalcontapp), 100000, max(state_contapp$totalcontapp)), trans = "log10", name = "Numbers of Continue Approval") +
   labs(title = "Map of Numbers of Continue Approvals in Each State") 
-eb4
+#eb4
 elbow_room3l <- us_base + geom_polygon(data = state_contapp, aes(fill = percentcontapp), color = "white") +
   geom_polygon(color = "black", fill = NA) +
   theme_bw() +
   ditch_the_axes
 eb4l <- elbow_room3l + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), name = "Percentage of Continue Approval") +
   labs(title = "Map of Percentage of Continue Approvals in Each State") 
-eb4l
-eb4 + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45))
-eb4l + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45))
+#eb4l
+eb4a <- eb4 + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45)) + ggtitle(("East Side Zoomed In Version of Numbers of Continue Approvals in Each State"))
+eb4la <- eb4l + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45)) + ggtitle(("East Side Zoomed In Version of Percentage of Continue Approvals in Each State"))
+grid.arrange(eb4, eb4a, ncol = 1)
+grid.arrange(eb4l, eb4la, ncol= 1)
 ```
 
-### 3.5 Map of continue denial
-```{r, echo=F}
+From the graphs, we can see that Washington, California, and New York states have dense color in both graphs, they all have at least 67,000 number of continuing approvals, and at least 95% of continue approval rates.
+
+### 3.5 Continue Denials
+
+#### **3.5.1 Map of Continue Denials**
+```{r, echo=F, message=F}
 elbow_room4 <- us_base + geom_polygon(data = state_contden, aes(fill = totalcontden), color = "white") +
   geom_polygon(color = "black", fill = NA) +
   theme_bw() +
   ditch_the_axes
 eb5 <- elbow_room4 + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), breaks = c(min(state_contden$totalcontden),1000, 6000, median(state_contden$totalcontden), 100000, max(state_contden$totalcontden)), trans = "log10", name = "Numbers of continue denial") + labs(title = "Map of Numbers of Continue Denials in Each State")
-eb5
+#eb5
 elbow_room4l <- us_base + geom_polygon(data = state_contden, aes(fill = percentcontden), color = "white") +
   geom_polygon(color = "black", fill = NA) +
   theme_bw() +
   ditch_the_axes
 eb5l <- elbow_room4l + scale_fill_gradientn(colours = c(low = "white", high = "dark blue"), name = "Percentage of continue denial", breaks = c(2, 3, 4, 5, 6, 7, 7.78)) + labs(title = "Map of Percentage of Continue Denials in Each State")
-eb5l
-eb5 + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45))
-eb5l + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45))
+#eb5l
+eb5a <- eb5 + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45)) + ggtitle(("East Side Zoomed In Version of Numbers of Continue Denials in Each State"))
+eb5la <- eb5l + coord_cartesian(xlim = c(-65, -85), ylim = c(35, 45)) + ggtitle(("East Side Zoomed In Version of Percentage of Continue Denials in Each State"))
+grid.arrange(eb5, eb5a, ncol = 1)
+grid.arrange(eb5l, eb5la, ncol = 1)
 ```
 
-#### relations
-```{r, include=F}
-try1 <- table(h1b$State, h1b$Fiscal.Year)
-chisq.test(try1)
-# try2<- table(new$State, new$percenti)
-# chisq.test(try2)
-summary(h1b)
-str(state_lo)
+Same as initial denials, the lowest number of continue denials and lowest percentage of continue denials are the same with continue approvals, because the number of continue denials is the conjugate of the number of continue approvals.
+
+```{r, echo=F}
+m6 <- new %>% group_by(State) %>% arrange(desc(percentcontden)) %>% select(State, percentcontden, totalcontden) %>% filter(totalcontden > 6000, percentcontden > 5.00)
+m6
 ```
 
-```{r, include=F}
-prop.test(500000, 1111111, p=0.5)
-try3 <- aov(h1b$Initial.Approvals ~ h1b$State, na.rm = T)
-summary(try3)
-```
+Through the table, we can see Pennsylvania, Maryland, Texas, New Jersey and Illinois have high continue denial rates, since they all have at least 6,000 number of continue denials, and above 6% of continue denials.
 
-```{r}
-m1 <- new %>% group_by(State) %>% arrange(desc(percentiniapp)) %>% head()
-m2 <- new %>% group_by(State) %>% arrange(desc(totalinitialapp)) %>% head()
-m1
-m2
-```
 
-```{r}
-m3 <- new %>% group_by(State) %>% arrange(desc(totalcontapp)) %>% head(n = 10)
-m3
-m4 <- new %>% group_by(State) %>% arrange(desc(percentcontapp)) %>% head(n =10)
-m4
-```
 
 
 
@@ -441,31 +484,45 @@ The H-1B continuing approval rate for NAICS 11, Agriculture, Forestry, Fishing a
 
 
 
-# Chapter 5: Year (& Policy) Factor
-```{r initial_bar,  echo=FALSE}
+# Chapter 5: Year, Policy, and H1b Visa Acceptance
+
+  1) How does year affect H1b visa acceptance from 2015-2019? From 2009-19? 1a) How has the change in US policy from 2015-2019 affected H1b visa acceptances and denials?
+
+In this section, we wanted to look at how H1b visa approvals and denials changed over the course of the decade from 2009-2019. In doing so, we analyze both initial and continuing H1b visa approvals and denials. By analyzing over the 10-year time frame, we wanted to get a better look at the broader, overall rate of acceptances across two US presidencies. The idea being, after we looked at the data, we could conclude the fluctuation in rate of acceptances, look at how they changed over the two presidencies, and what policies may have been in place that affected these fluctuations.
+
+```{r initial_bar, echo=FALSE}
 library("ggplot2")
-#h1b$Fiscal.Year = as.factor(h1b$Fiscal.Year)
+h1b$Fiscal.Year = as.factor(h1b$Fiscal.Year)
 # use group by to combine same year together to calculate the total initial application amount.
-initial <- h1b %>% group_by(Fiscal.Year) %>% summarize( totaliniaccpt = sum(Initial.Approvals, na.rm = T), #shows total number of initail approvals
-                                                  totaliniden = sum(Initial.Denials, na.rm = T), # shows total number of initial denials
-                                                  totalinitial = sum(Initial.Approvals,na.rm = T)+sum(Initial.Denials,na.rm = T), # shows total number of initial application
-                                                  iaccptperc = (totaliniaccpt/totalinitial)*100, round(iaccptperc, digits = 2), # percentage of initial approval rate
-                                                  idenperc = (totaliniden/totalinitial)*100, round(idenperc, digits = 2)) #percentage of initial denial rate
+initial <- h1b %>% group_by(Fiscal.Year) %>% summarize( totaliniaccpt = sum(Initial.Approvals, na.rm = T), 
+                                                  totaliniden = sum(Initial.Denials, na.rm = T), 
+                                                  totalinitial = sum(Initial.Approvals,na.rm = T)+sum(Initial.Denials,na.rm = T), 
+                                                  iaccptperc = (totaliniaccpt/totalinitial)*100, round(iaccptperc, digits = 2), 
+                                                  idenperc = (totaliniden/totalinitial)*100, round(idenperc, digits = 2)) 
+
 head(initial, n=12)
-str(initial)
-ggplot(initial, aes(x = Fiscal.Year, y = iaccptperc, color = Fiscal.Year, fill = Fiscal.Year)) + # percentage of initial approvals rate and color by industry code
+#str(initial)
+
+ggplot(initial, aes(x = Fiscal.Year, y = iaccptperc, color = Fiscal.Year, fill = Fiscal.Year)) + 
   geom_bar(stat ="identity") + 
   xlab("Year") + 
   ylab("Total Initial Approvals Percentage")+
   ggtitle("Total Initial Approvals by Year")+
 ggsave("Total Initial Approvals Percentage.png", width=12, height=9)
-ggplot(initial, aes(x = Fiscal.Year, y = idenperc, color = Fiscal.Year, , fill = Fiscal.Year)) + # percentage of initial denials rate and color by industry code
+
+ggplot(initial, aes(x = Fiscal.Year, y = idenperc, color = Fiscal.Year, , fill = Fiscal.Year)) + 
   geom_bar(stat ="identity") + 
   xlab("Year") + 
   ylab("Total Initial Denials Percentage")+
   ggtitle("Total Initial Denials by Year")+
 ggsave("Total Denial Approvals Percentage.png", width=12, height=9)
 ```
+
+As was the case with the previous analyses of industry and location, we created a subset of initial approvals, grouped by Fiscal Year. We first coverted the fiscal year variable to a factor level variable using the as.factor function. We then summarized total initial approvals, total initial denials, and total initials to calculate initial approval percentage and initial denial percentage.
+
+We then used the ggplot function to graph fiscal year against initial acceptance percentage. For this bar chart, we found in 2009, initial approval percentage was around 85%, then rose to about 90% and above, before dropping back down in 2016. From 2017 to 2019, initial approval dropped form 87% to 75% - a decrease of over 10 percentage points.
+
+We then graphed fiscal year against total initial denial percentage. From 2012 to 2018, we saw total initial denials jump from 5% to 24%. More specifically, from 2015 to 2019, the data more than tripled from 7% to 23%. Around the time of the change in presidential offices, the total initial denials increased drastically.
 
 ```{r cont_bar, echo=FALSE}
 # use group by to combine same year together to calculate the total continuing application amount.
@@ -477,12 +534,19 @@ continuing <- h1b %>% group_by(Fiscal.Year) %>% summarize( totalconaccpt = sum(C
 ggplot(continuing, aes(x = Fiscal.Year, y = caccptperc, color = Fiscal.Year, fill = Fiscal.Year)) + geom_bar(stat ="identity") + xlab("Year") + ylab("Total Continuing Approvals Percentage")+
   ggtitle("Total Continuing Approvals by Year")+
 ggsave("Total Continuing Approvals Percentage.png", width=12, height=9)
+
 ggplot(continuing, aes(x = Fiscal.Year, y = cdenperc, color = Fiscal.Year, fill = Fiscal.Year)) + geom_bar(stat ="identity") + xlab("Year") + ylab("Total Continuing Denials Percentage")+
   ggtitle("Total Continuing Denials by Year")+
 ggsave("Total Continuing DenialsPercentage.png", width=12, height=9)
 ```
 
-```{r, ini_line_plot}
+From here, we wanted to analyze how the continuing approval and denials matched up to the initials. We created a new vector labeled “continuing” and grouped by fiscal year. We then summarized and created the following new variables: total continuing approvals, total continuing denials, total continuing, and then continuing approval percentage and continuing denial percentage.
+
+We used a ggplot function to create a bar chart, which showed they largely mirrored the initial approval and denials. The continuing approvals was steady from 2009-2016 at about 90%. From 2017-2019, however, continuing approvals dropped from 93% to 87%. This analysis matched the analysis of initial approvals.
+
+We then graphed a bar chart of total continuing denial percentage and fiscal year. From 2009 to 2019, it doubled from 6% to 12%. In 2013 continuing denials percentage was less than 3%; in 2018 it was about 12%, nearly quadrupling. In 2017 continuing denials was hovering around 5% and in one year, to 2018, it jumped to just shy of 12%. This bar chart largely mirrored what occurred for initial denials from 2009-2019.
+
+```{r ini_line_plot, echo=F, message=F}
 #install.packages("directlabels")
 library(directlabels)
 #h1b$Fiscal.Year = as.numeric(h1b$Fiscal.Year)
@@ -492,25 +556,30 @@ initialbyyear <- h1b %>% group_by(Fiscal.Year) %>% summarize( totaliniaccpt = su
                                                   iaccptperc = (totaliniaccpt/totalinitial)*100, 
                                                   idenperc = (totaliniden/totalinitial)*100)
 ggplot(initialbyyear, aes(x=Fiscal.Year, y=iaccptperc)) + 
-    geom_line(aes(color=Fiscal.Year, group=Fiscal.Year), size = 1) +   # create the line by nacis code
+    geom_line(aes(color=Fiscal.Year, group=Fiscal.Year), size = 1) +  
     ggtitle("Line Plot of Initial Approvals Percentage by Year")+
     geom_point(aes(color=Fiscal.Year), size=3) + 
     xlab("Year")+ ylab("Percentage(%)") + 
     ggsave("iaccptpercline.png", width=12, height=9)
+
 initialbyyear <- h1b %>% group_by(Fiscal.Year) %>% summarize( totaliniaccpt = sum(Initial.Approvals, na.rm = T),
                                                   totaliniden = sum(Initial.Denials, na.rm = T),
                                                   totalinitial = sum(Initial.Approvals,na.rm = T)+sum(Initial.Denials,na.rm = T),
                                                   iaccptperc = (totaliniaccpt/totalinitial)*100, 
                                                   idenperc = (totaliniden/totalinitial)*100)
 ggplot(initialbyyear, aes(x=Fiscal.Year, y=idenperc)) + 
-    geom_line(aes(color=Fiscal.Year, group=Fiscal.Year), size = 1) +   # create the line by nacis code
+    geom_line(aes(color=Fiscal.Year, group=Fiscal.Year), size = 1) +   
     ggtitle("Line Plot of Initial Denials Percentage by Year")+
     geom_point(aes(color=Fiscal.Year), size=3) + 
     xlab("Year")+ ylab("Percentage(%)") + 
     ggsave("idenpercline.png", width=12, height=9)
 ```
 
-```{r cont_line_plot}
+From here, we wanted to visualize the data a bit differently. For initials, we used the same “initial” subset, called it “initialbyyear,” used fiscal year as a factor level variable, and summarized the initial approvals and denials as before.
+
+For initial approval percentage by fiscal year, we plotted a line graph and the data displayed the same as the bar chart, demonstrating an inverse-U relationship (roughly). Initial denial percentage displayed a U shape relationship, the same as with the initial denials for the bar chart.
+
+```{r cont_line_plot, echo=F, message=F}
 library(directlabels)
 continuing <- h1b %>% group_by(Fiscal.Year) %>% summarize( totalconaccpt = sum(Continuing.Approvals, na.rm = T),
                                                   totalconden = sum(Continuing.Denials, na.rm = T),
@@ -523,6 +592,7 @@ ggplot(continuing, aes(x=Fiscal.Year, y=caccptperc)) +
     geom_point(aes(color=Fiscal.Year), size=3) + 
     xlab("Year")+ ylab("Percentage(%)") + 
     ggsave("conaccptercline.png", width=12, height=9)      
+
 continuing <- h1b %>% group_by(Fiscal.Year) %>% summarize( totalconaccpt = sum(Continuing.Approvals, na.rm = T),
                                                   totalconden = sum(Continuing.Denials, na.rm = T),
                                                   totalcontinue = sum(Continuing.Approvals,na.rm = T)+sum(Continuing.Denials,na.rm = T),
@@ -536,19 +606,13 @@ ggplot(continuing, aes(x=Fiscal.Year, y=cdenperc)) +
     ggsave("condenline.png", width=12, height=9)    
 ```
 
-# Sources
-https://nfap.com/wp-content/uploads/2019/04/H-1B-Denial-Rates-Past-and-Present.NFAP-Policy-Brief.April-2019.pdf
-https://economictimes.indiatimes.com/nri/visa-and-immigration/10-per-cent-drop-in-h1b-visa-approvals-in-2018-us-authorities/articleshow/69659107.cms
-https://www.forbes.com/sites/stuartanderson/2019/04/10/new-data-show-h-1b-denial-rates-reaching-highest-levels/#38e210e2797f
+For continuing, we used the same “continuing” subset created earlier. For continuing approval percentage, the line graph displayed an inverse U relationship, mirroring the bar chart from earlier. We then graphed continuing denial percentage by year, the line graph showed a U-shaped relationship like the bar chart from above.
 
-## 5.1: Industries vs NAICS 
+#Analysis and Policy
 
+When looking at these analyses, the data showed some consistent messages. Overall, from 2015 to 2019 initial denial rate tripled from 7% to 23%. As well, from 2015 to 2019 continuing denial quadrupled from 3% to 12%. Under Obama’s policies from 2010 to 2015, the denial rate never went over 8%. Furthermore, after running chi squared tests and determining the significance levels of fiscal year and initial approvals, initial denials, continuing approvals, and continuing denials, we could determine some relationships from the data. All chi squared tests had a very small p value less than .001, at <2e-16, demonstrating the statistical significance of each test on the variables. For both the line graphs and bar charts, for initial approvals and continuing approvals drastically decreased after 2017. For both initial denials and continuing denials, the data showed a sharp increase around 2017.
 
-
-### 5.1.1: S.M.A.R.T Question
-
-
-
+What was the cause of this? Here’s where policy comes into play. Trump won the presidential nomination in late 2016, was inaugurated in early 2017, and in April of 2017 signed the “Buy American and Hire American” executive order. This effectively changed the H1b visa acceptance requirement from a “skill-based” system to a “merit-based” system. This made the approval process into a more subjective and ambiguous decision-making process. From this, the “standard of proof” had be raised, making it much harder for immigrants to gain temporary citizenship status in the US. This move has affected multiple industries across various locations in the US – impacting the labor market and production potential in certain industries. Finally, this move largely coincided with Trump’s protectionist and anti-immigration platform he ran on during his presidential campaign. Hence while the executive order should come as no surprise, the data does indeed suggest that Trump’s policy has significantly effected H1b visa approval rates since he came into office, which has had cascading effects on US immigration, labor, and economics.
 
 
 
@@ -584,3 +648,9 @@ What is H1B Visa? (n.d.). Retrieved October 14, 2019, from https://www.path2usa.
  Csorny, L. (2013, April). Careers in the growing field of information technology services : Beyond the Numbers. Retrieved October 23, 2019, from https://www.bls.gov/opub/btn/volume-2/careers-in-growing-field-of-information-technology-services.htm.
 
  Molla, R. (2019, February 28). Visa approvals for tech workers are on the decline. That won't just hurt Silicon Valley. Retrieved October 23, 2019, from https://www.vox.com/2019/2/28/18241522/trump-h1b-tech-work-jobs-overseas.
+ 
+ https://nfap.com/wp-content/uploads/2019/04/H-1B-Denial-Rates-Past-and-Present.NFAP-Policy-Brief.April-2019.pdf
+ 
+https://economictimes.indiatimes.com/nri/visa-and-immigration/10-per-cent-drop-in-h1b-visa-approvals-in-2018-us-authorities/articleshow/69659107.cms
+
+https://www.forbes.com/sites/stuartanderson/2019/04/10/new-data-show-h-1b-denial-rates-reaching-highest-levels/#38e210e2797f
