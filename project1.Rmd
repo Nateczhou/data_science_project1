@@ -33,7 +33,7 @@ new <- h1b %>% drop_na(State) %>% group_by(State) %>%
             totalcontden = sum(Continuing.Denials, na.rm = T),
             totalinitial = sum((totalinitialapp + totalinitialden), na.rm = T),
             totalcontinue = sum((totalcontapp+totalcontden), na.rm = T),
-            percentiniapp = ((totalinitialapp/totalinitial) * 100),
+            percentiniapp = ((totalinitialapp/totalinitial) ),
             percentiniden = (totalinitialden/totalinitial) * 100,
             percentcontapp = (totalcontapp/totalcontinue) *100,
             percentcontden = (totalcontden/totalcontinue) * 100
@@ -73,10 +73,17 @@ state_lo <- state_lo[state_lo$State %in%state.abb,]
 head(state_lo)
 ```
 
-```{r,include=F}
+```{r,echo=F}
 state_approval <- state_lo %>% select(long, lat, group, order, State, totalinitialapp, percentiniapp, State_name)
 head(state_approval)
 ```
+
+```{r logtest, echo=F}
+
+testLogit <- glm(percentiniapp ~  long + lat + State, data = state_approval, family = "binomial")
+summary(testLogit)
+```
+
 
 ```{r, echo=F}
 state_den <- state_lo %>% select(long, lat, group, order, State, totalinitialden, percentiniden, State_name)
