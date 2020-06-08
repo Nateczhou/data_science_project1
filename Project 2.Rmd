@@ -137,6 +137,5 @@ summary(propcr.fit.nc)
 ```{r, echo=F}
 validationplot(propcr.fit,val.type="R2", main = "Standarized")
 validationplot(propcr.fit.nc,val.type="R2", main = "Non-Standarized")
-
 ```
 
